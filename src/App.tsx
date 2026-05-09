@@ -5,13 +5,32 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Submission Handler
-  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+  const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (searchQuery.trim() === "") return;
 
     console.log("Sending request to API for city:", searchQuery);
-    // Later the real API fetch here
+
+    //API fetch
+    const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+    // Construct the API endpoint URL
+    const URL = `https://api.openweathermap.org/data/2.5/weather?q=${searchQuery}&appid=${API_KEY}&units=metric`;
+
+    try {
+      console.log("Sending request to:", URL);
+      // Execute the HTTP GET request and wait for the response
+      const response = await fetch(URL);
+
+      if (!response.ok) {
+        throw new Error("City not found or API key not active yet");
+      }
+
+      const data = await response.json();
+      console.log("Weather Data:", data);
+    } catch (error) {
+      console.error("Error fetching weather:", error);
+    }
   };
 
   return (
