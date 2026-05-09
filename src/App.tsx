@@ -1,8 +1,35 @@
 import { useState, type FormEvent } from "react";
+// defining the exact shape of the data we expect from the API
+interface WeatherData {
+  name: string;
+  main: {
+    temp: number;
+    feels_like: number;
+    humidity: number;
+  };
+  weather: Array<{
+    description: string;
+    icon: string;
+  }>;
+}
+interface WeatherData {
+  name: string;
+  main: {
+    temp: number;
+    feels_like: number;
+    humidity: number;
+  };
+  weather: Array<{
+    description: string;
+    icon: string;
+  }>;
+}
 
 function App() {
   // We store what the user is typing
   const [searchQuery, setSearchQuery] = useState("");
+  // State to hold the successful API response
+  const [weather, setWeather] = useState<WeatherData | null>(null);
 
   // Submission Handler
   const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
@@ -28,6 +55,10 @@ function App() {
 
       const data = await response.json();
       console.log("Weather Data:", data);
+
+      // Save the data to React state and clear the search input
+      setWeather(data);
+      setSearchQuery("");
     } catch (error) {
       console.error("Error fetching weather:", error);
     }
@@ -59,14 +90,44 @@ function App() {
         </form>
 
         {/* Weather card */}
-        <div className="card w-full max-w-md bg-base-100 shadow-xl">
-          <div className="card-body items-center text-center">
-            <h2 className="card-title text-gray-400">No city selected</h2>
-            <p className="text-sm text-gray-500">
-              Use the search bar above to find the current weather
-            </p>
+        {/* Conditional rendering: If weather data exists, render the data. Otherwise, render the placeholder */}
+        {weather ? (
+          <div className="card w-full max-w-md bg-base-100 shadow-xl">
+            <div className="card-body items-center text-center">
+              <h2 className="card-title text-3xl">{weather.name}</h2>
+
+              <img
+                src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@4x.png`}
+                alt="weather icon"
+                className="w-32 h-32 drop-shadow-lg"
+              />
+
+              <p className="text-5xl font-bold text-base-content">
+                {Math.round(weather.main.temp)}°C
+              </p>
+
+              <p className="text-lg capitalize text-base-content/80">
+                {weather.weather[0].description}
+              </p>
+
+              <div className="flex gap-4 mt-4 text-sm text-base-content/60">
+                <p>Feels like: {Math.round(weather.main.feels_like)}°C</p>
+                <p>Humidity: {weather.main.humidity}%</p>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="card w-full max-w-md bg-base-100 shadow-xl">
+            <div className="card-body items-center text-center">
+              <h2 className="card-title text-base-content/60">
+                No city selected
+              </h2>
+              <p className="text-sm text-base-content/50">
+                Use the search bar above to find the current weather.
+              </p>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
