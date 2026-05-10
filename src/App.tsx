@@ -10,20 +10,31 @@ interface WeatherData {
   weather: Array<{
     description: string;
     icon: string;
+    main: string;
   }>;
 }
-interface WeatherData {
-  name: string;
-  main: {
-    temp: number;
-    feels_like: number;
-    humidity: number;
-  };
-  weather: Array<{
-    description: string;
-    icon: string;
-  }>;
-}
+
+// Function to choose the background color based on weather conditions
+const getBackgroundClass = (weatherCondition?: string) => {
+  if (!weatherCondition) return "bg-base-200"; // Default background
+
+  // We use Tailwind gradients for a modern look
+  switch (weatherCondition.toLowerCase()) {
+    case "clear":
+      return "bg-gradient-to-br from-blue-400 to-sky-200";
+    case "clouds":
+      return "bg-gradient-to-br from-gray-300 to-gray-100";
+    case "rain":
+    case "drizzle":
+      return "bg-gradient-to-br from-slate-700 to-slate-500";
+    case "snow":
+      return "bg-gradient-to-br from-blue-100 to-white";
+    case "thunderstorm":
+      return "bg-gradient-to-br from-gray-900 to-gray-700";
+    default:
+      return "bg-gradient-to-br from-indigo-100 to-base-200";
+  }
+};
 
 function App() {
   // We store what the user is typing
@@ -84,7 +95,11 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div
+      className={`min-h-screen transition-all duration-700 ${
+        weather ? getBackgroundClass(weather.weather[0].main) : "bg-base-200"
+      }`}
+    >
       {/* Navigation bar */}
       <div className="navbar bg-neutral text-neutral-content shadow-sm">
         <div className="flex-1">
@@ -93,7 +108,7 @@ function App() {
       </div>
 
       {/* Main content container */}
-      <main className="p-4 md:p-8 flex justify-center flex-col items-center gap-8">
+      <main className="p-4 md:p-8 flex justify-center flex-col items-center gap-4">
         {/* Search Form */}
         <form onSubmit={handleSearch} className="w-full max-w-md flex gap-2">
           <input
@@ -103,60 +118,25 @@ function App() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button type="submit" className="btn btn-primary">
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isLoading}
+          >
             Search
           </button>
         </form>
 
-        {/* Weather card */}
-        {/* Conditional rendering: If weather data exists, render the data. Otherwise, render the placeholder */}
-        {weather ? (
-          <div className="card w-full max-w-md bg-base-100 shadow-xl">
-            <div className="card-body items-center text-center">
-              <h2 className="card-title text-3xl">{weather.name}</h2>
-
-              <img
-                src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@4x.png`}
-                alt="weather icon"
-                className="w-32 h-32 drop-shadow-lg"
-              />
-
-              <p className="text-5xl font-bold text-base-content">
-                {Math.round(weather.main.temp)}°C
-              </p>
-
-              <p className="text-lg capitalize text-base-content/80">
-                {weather.weather[0].description}
-              </p>
-
-              <div className="flex gap-4 mt-4 text-sm text-base-content/60">
-                <p>Feels like: {Math.round(weather.main.feels_like)}°C</p>
-                <p>Humidity: {weather.main.humidity}%</p>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="card w-full max-w-md bg-base-100 shadow-xl">
-            <div className="card-body items-center text-center">
-              <h2 className="card-title text-base-content/60">
-                No city selected
-              </h2>
-              <p className="text-sm text-base-content/50">
-                Use the search bar above to find the current weather.
-              </p>
-            </div>
-          </div>
-        )}
         {/* Show Loading Spinner */}
         {isLoading && (
-          <div className="flex justify-center items-center p-10">
+          <div className="flex justify-center items-center p-10 w-full max-w-md">
             <span className="loading loading-spinner loading-lg text-primary"></span>
           </div>
         )}
 
         {/* Show Error Message */}
         {error && !isLoading && (
-          <div className="alert alert-error max-w-md shadow-lg">
+          <div className="alert alert-error max-w-md shadow-lg relative">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="stroke-current shrink-0 h-6 w-6"
@@ -167,23 +147,53 @@ function App() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
-                d="10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
             <span>{error}</span>
           </div>
         )}
 
+        {/* Weather card */}
+        {/* Conditional rendering: If weather data exists, render the data. Otherwise, render the placeholder */}
         {/* Show Weather Card OR Placeholder (only if not loading) */}
         {!isLoading &&
           !error &&
           (weather ? (
             <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-300">
-              {/* ... weather card content (same as before) ... */}
+              <div className="card-body items-center text-center">
+                <h2 className="card-title text-3xl">{weather.name}</h2>
+
+                <img
+                  src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@4x.png`}
+                  alt="weather icon"
+                  className="w-32 h-32 drop-shadow-lg"
+                />
+
+                <p className="text-5xl font-bold text-base-content">
+                  {Math.round(weather.main.temp)}°C
+                </p>
+
+                <p className="text-lg capitalize text-base-content/80">
+                  {weather.weather[0].description}
+                </p>
+
+                <div className="flex gap-4 mt-4 text-sm text-base-content/60">
+                  <p>Feels like: {Math.round(weather.main.feels_like)}°C</p>
+                  <p>Humidity: {weather.main.humidity}%</p>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-300">
-              {/* ... placeholder content ... */}
+              <div className="card-body items-center text-center">
+                <h2 className="card-title text-base-content/60">
+                  No city selected
+                </h2>
+                <p className="text-sm text-base-content/50">
+                  Use the search bar above to find the current weather.
+                </p>
+              </div>
             </div>
           ))}
       </main>
