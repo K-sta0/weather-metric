@@ -1,18 +1,7 @@
 import { useState, type FormEvent } from "react";
-// defining the exact shape of the data we expect from the API
-interface WeatherData {
-  name: string;
-  main: {
-    temp: number;
-    feels_like: number;
-    humidity: number;
-  };
-  weather: Array<{
-    description: string;
-    icon: string;
-    main: string;
-  }>;
-}
+import { type WeatherData } from "./types";
+import SearchForm from "./components/SearchForm";
+import WeatherCard from "./components/WeatherCard";
 
 // Function to choose the background color based on weather conditions
 const getBackgroundClass = (weatherCondition?: string) => {
@@ -109,23 +98,13 @@ function App() {
 
       {/* Main content container */}
       <main className="p-4 md:p-8 flex justify-center flex-col items-center gap-4">
-        {/* Search Form */}
-        <form onSubmit={handleSearch} className="w-full max-w-md flex gap-2">
-          <input
-            type="text"
-            placeholder="Enter city name..."
-            className="input input-bordered w-full"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isLoading}
-          >
-            Search
-          </button>
-        </form>
+        {/* Render Search Form Component */}
+        <SearchForm
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          handleSearch={handleSearch}
+          isLoading={isLoading}
+        />
 
         {/* Show Loading Spinner */}
         {isLoading && (
@@ -154,48 +133,8 @@ function App() {
           </div>
         )}
 
-        {/* Weather card */}
-        {/* Conditional rendering: If weather data exists, render the data. Otherwise, render the placeholder */}
-        {/* Show Weather Card OR Placeholder (only if not loading) */}
-        {!isLoading &&
-          !error &&
-          (weather ? (
-            <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-300">
-              <div className="card-body items-center text-center">
-                <h2 className="card-title text-3xl">{weather.name}</h2>
-
-                <img
-                  src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@4x.png`}
-                  alt="weather icon"
-                  className="w-32 h-32 drop-shadow-lg"
-                />
-
-                <p className="text-5xl font-bold text-base-content">
-                  {Math.round(weather.main.temp)}°C
-                </p>
-
-                <p className="text-lg capitalize text-base-content/80">
-                  {weather.weather[0].description}
-                </p>
-
-                <div className="flex gap-4 mt-4 text-sm text-base-content/60">
-                  <p>Feels like: {Math.round(weather.main.feels_like)}°C</p>
-                  <p>Humidity: {weather.main.humidity}%</p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-300">
-              <div className="card-body items-center text-center">
-                <h2 className="card-title text-base-content/60">
-                  No city selected
-                </h2>
-                <p className="text-sm text-base-content/50">
-                  Use the search bar above to find the current weather.
-                </p>
-              </div>
-            </div>
-          ))}
+        {/* Render Weather Card Component ONLY if not loading and no error */}
+        {!isLoading && !error && <WeatherCard weather={weather} />}
       </main>
     </div>
   );
