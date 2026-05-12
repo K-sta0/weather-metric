@@ -1,0 +1,46 @@
+import { useState } from "react";
+import { type WeatherData } from "../types";
+
+//Custom hook to manage weather data fetching and state
+export function useWeather() {
+  // We move all the state related to the API request here
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // This function takes a city name and does all the hard work
+  const fetchWeather = async (city: string) => {
+    if (city.trim() === "") return;
+
+    // Reset error and start loading
+    setError(null);
+    setIsLoading(true);
+
+    const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+    const URL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+
+    try {
+      const response = await fetch(URL);
+
+      if (!response.ok) {
+        throw new Error("City not found or API key not active yet");
+      }
+
+      const data = await response.json();
+      setWeather(data);
+    } catch (error) {
+      console.error("Error fetching weather:", error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
+      setWeather(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // We return only what the UI needs to see and use
+  return { weather, isLoading, error, fetchWeather };
+}

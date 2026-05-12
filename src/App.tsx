@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { type WeatherData } from "./types";
 import SearchForm from "./components/SearchForm";
 import WeatherCard from "./components/WeatherCard";
+import { useWeather } from "./hooks/useWeather";
 
 // Function to choose the background color based on weather conditions
 const getBackgroundClass = (weatherCondition?: string) => {
@@ -26,61 +26,17 @@ const getBackgroundClass = (weatherCondition?: string) => {
 };
 
 function App() {
-  // We store what the user is typing
+  // We store what user is typing right now
   const [searchQuery, setSearchQuery] = useState("");
-  // State to hold the successful API response
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  // Boolean state to track if the request is in progress
-  const [isLoading, setIsLoading] = useState(false);
-  // String state to store error messages
-  const [error, setError] = useState<string | null>(null);
 
-  // Submission Handler
-  const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
+  // We use our custom hook
+  const { weather, isLoading, error, fetchWeather } = useWeather();
+
+  // Simplified submission handler
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (searchQuery.trim() === "") return;
-
-    console.log("Sending request to API for city:", searchQuery);
-
-    //API fetch
-    const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
-    // Construct the API endpoint URL
-    const URL = `https://api.openweathermap.org/data/2.5/weather?q=${searchQuery}&appid=${API_KEY}&units=metric`;
-
-    // Reset error and start loading
-    setError(null);
-    setIsLoading(true);
-
-    try {
-      console.log("Sending request to:", URL);
-      // Execute the HTTP GET request and wait for the response
-      const response = await fetch(URL);
-
-      if (!response.ok) {
-        throw new Error("City not found or API key not active yet");
-      }
-
-      const data = await response.json();
-      console.log("Weather Data:", data);
-
-      // Save the data to React state and clear the search input
-      setWeather(data);
-      setSearchQuery("");
-    } catch (error) {
-      console.error("Error fetching weather:", error);
-      if (error instanceof Error) {
-        // Save the error message to display it in UI
-        setError(error.message);
-      } else {
-        // Fallback for unexpected error types that aren't standard Error objects
-        setError("An unexpected error occurred");
-      }
-
-      setWeather(null);
-    } finally {
-      setIsLoading(false);
-    }
+    fetchWeather(searchQuery); // Pass the city to the hook
+    setSearchQuery(""); // Clear the input field
   };
 
   return (
