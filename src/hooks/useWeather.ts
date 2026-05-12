@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { type WeatherData } from "../types";
 
 //Custom hook to manage weather data fetching and state
@@ -27,6 +27,7 @@ export function useWeather() {
       }
 
       const data = await response.json();
+      localStorage.setItem("lastCity", city);
       setWeather(data);
     } catch (error) {
       console.error("Error fetching weather:", error);
@@ -40,6 +41,14 @@ export function useWeather() {
       setIsLoading(false);
     }
   };
+  useEffect(() => {
+    const savedCity = localStorage.getItem("lastCity");
+    if (savedCity !== null) {
+      setTimeout(() => {
+        fetchWeather(savedCity);
+      }, 0);
+    }
+  }, []);
 
   // We return only what the UI needs to see and use
   return { weather, isLoading, error, fetchWeather };
