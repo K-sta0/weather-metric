@@ -41,6 +41,37 @@ export function useWeather() {
       setIsLoading(false);
     }
   };
+
+  const fetchWeatherByGeolocation = async (lat: number, lon: number) => {
+    // Reset error and start loading
+    setError(null);
+    setIsLoading(true);
+
+    const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+    const URL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+
+    try {
+      const response = await fetch(URL);
+
+      if (!response.ok) {
+        throw new Error("City not found or API key not active yet");
+      }
+
+      const data = await response.json();
+      setWeather(data);
+    } catch (error) {
+      console.error("Error fetching weather:", error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
+      setWeather(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const savedCity = localStorage.getItem("lastCity");
     if (savedCity !== null) {
@@ -51,5 +82,5 @@ export function useWeather() {
   }, []);
 
   // We return only what the UI needs to see and use
-  return { weather, isLoading, error, fetchWeather };
+  return { weather, isLoading, error, fetchWeather, fetchWeatherByGeolocation };
 }

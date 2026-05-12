@@ -5,6 +5,7 @@ interface SearchFormProps {
   setSearchQuery: (query: string) => void;
   handleSearch: (e: FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
+  onGeolocationClick: () => void;
 }
 
 export default function SearchForm({
@@ -12,6 +13,7 @@ export default function SearchForm({
   setSearchQuery,
   handleSearch,
   isLoading,
+  onGeolocationClick,
 }: SearchFormProps) {
   return (
     <>
@@ -26,6 +28,15 @@ export default function SearchForm({
         />
         <button type="submit" className="btn btn-primary" disabled={isLoading}>
           Search
+        </button>
+        <button
+          type="button"
+          className="btn bg-white hover:bg-gray-100 border-none text-xl"
+          onClick={onGeolocationClick}
+          disabled={isLoading}
+          title="Get current location"
+        >
+          📍
         </button>
       </form>
     </>

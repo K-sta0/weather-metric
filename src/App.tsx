@@ -30,13 +30,35 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // We use our custom hook
-  const { weather, isLoading, error, fetchWeather } = useWeather();
+  const { weather, isLoading, error, fetchWeather, fetchWeatherByGeolocation } =
+    useWeather();
+  useWeather();
 
   // Simplified submission handler
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     fetchWeather(searchQuery); // Pass the city to the hook
     setSearchQuery(""); // Clear the input field
+  };
+
+  const handleGeolocationClick = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchWeatherByGeolocation(
+            position.coords.latitude,
+            position.coords.longitude,
+          );
+        },
+        (err) => {
+          // Если пользователь запретил доступ или произошла ошибка
+          console.error("Error getting location:", err);
+          alert("Please allow location access to use this feature.");
+        },
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+    }
   };
 
   return (
@@ -60,6 +82,7 @@ function App() {
           setSearchQuery={setSearchQuery}
           handleSearch={handleSearch}
           isLoading={isLoading}
+          onGeolocationClick={handleGeolocationClick}
         />
 
         {/* Show Loading Spinner */}
