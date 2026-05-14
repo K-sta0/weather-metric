@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { type WeatherData } from "../types";
+import { type CitySuggestion } from "../types";
 
 //Custom hook to manage weather data fetching and state
 export function useWeather() {
@@ -7,6 +8,7 @@ export function useWeather() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
 
   // This function takes a city name and does all the hard work
   const fetchWeather = async (city: string) => {
@@ -72,6 +74,28 @@ export function useWeather() {
     }
   };
 
+  const fetchCitySuggestions = async (query: string) => {
+    // Do not fetch if the query is too short
+    if (query.trim().length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+    const URL = `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${API_KEY}`;
+
+    try {
+      const response = await fetch(URL);
+      if (!response.ok) throw new Error("Failed to fetch suggestions");
+
+      const data = await response.json();
+      setSuggestions(data);
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+      setSuggestions([]);
+    }
+  };
+
   useEffect(() => {
     const savedCity = localStorage.getItem("lastCity");
     if (savedCity !== null) {
@@ -82,5 +106,14 @@ export function useWeather() {
   }, []);
 
   // We return only what the UI needs to see and use
-  return { weather, isLoading, error, fetchWeather, fetchWeatherByGeolocation };
+  return {
+    weather,
+    isLoading,
+    error,
+    fetchWeather,
+    fetchWeatherByGeolocation,
+    suggestions,
+    setSuggestions,
+    fetchCitySuggestions,
+  };
 }
