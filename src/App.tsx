@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import SearchForm from "./components/SearchForm";
 import WeatherCard from "./components/WeatherCard";
 import { useWeather } from "./hooks/useWeather";
+import { useDebounce } from "./hooks/useDebounce";
 
 // Function to choose the background color based on weather conditions
 const getBackgroundClass = (weatherCondition?: string) => {
@@ -29,10 +30,37 @@ function App() {
   // We store what user is typing right now
   const [searchQuery, setSearchQuery] = useState("");
 
-  // We use our custom hook
-  const { weather, isLoading, error, fetchWeather, fetchWeatherByGeolocation } =
-    useWeather();
+  // Create a debounced version of the search query (updates after 500ms of inactivity)
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  // Handle click on a specific city from the dropdown list
+  const handleSuggestionClick = (cityName: string) => {
+    setSearchQuery(cityName);
+    setSuggestions([]); // Hide the dropdown menu
+    fetchWeather(cityName);
+  };
+
+  // We use our custom hooks
+  const {
+    weather,
+    isLoading,
+    error,
+    fetchWeather,
+    fetchWeatherByGeolocation,
+    suggestions,
+    setSuggestions,
+    fetchCitySuggestions,
+  } = useWeather();
   useWeather();
+
+  // Fetch city suggestions whenever the debounced query changes
+  useEffect(() => {
+    if (debouncedSearchQuery) {
+      fetchCitySuggestions(debouncedSearchQuery);
+    } else {
+      setSuggestions([]);
+    }
+  }, [debouncedSearchQuery]);
 
   // Simplified submission handler
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
@@ -83,6 +111,8 @@ function App() {
           handleSearch={handleSearch}
           isLoading={isLoading}
           onGeolocationClick={handleGeolocationClick}
+          suggestions={suggestions}
+          onSuggestionClick={handleSuggestionClick}
         />
 
         {/* Show Loading Spinner */}

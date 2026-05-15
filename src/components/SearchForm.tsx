@@ -1,4 +1,5 @@
 import { type FormEvent } from "react";
+import { type CitySuggestion } from "../types";
 
 interface SearchFormProps {
   searchQuery: string;
@@ -6,6 +7,8 @@ interface SearchFormProps {
   handleSearch: (e: FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
   onGeolocationClick: () => void;
+  suggestions: CitySuggestion[];
+  onSuggestionClick: (cityName: string) => void;
 }
 
 export default function SearchForm({
@@ -14,18 +17,44 @@ export default function SearchForm({
   handleSearch,
   isLoading,
   onGeolocationClick,
+  suggestions,
+  onSuggestionClick,
 }: SearchFormProps) {
   return (
     <>
       {/* Search Form */}
       <form onSubmit={handleSearch} className="w-full max-w-md flex gap-2">
-        <input
-          type="text"
-          placeholder="Enter city name..."
-          className="input input-bordered w-full"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+        {/* Wrapper for the input field and the absolute positioned dropdown */}
+        <div className="relative w-full">
+          <input
+            type="text"
+            placeholder="Enter city name..."
+            className="input input-bordered w-full"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+
+          {/* Render the dropdown menu only if there are suggestions available */}
+          {suggestions.length > 0 && (
+            <ul className="absolute top-full left-0 w-full bg-base-100 rounded-box shadow-lg z-50 mt-1 max-h-60 overflow-y-auto">
+              {suggestions.map((suggestion, index) => (
+                <li
+                  key={index}
+                  className="px-4 py-2 hover:bg-base-200 cursor-pointer text-left"
+                  onClick={() => onSuggestionClick(suggestion.name)}
+                >
+                  {/* Display City name, State (if available), and Country code */}
+                  <span className="font-semibold">{suggestion.name}</span>
+                  <span className="text-sm text-gray-500 ml-2">
+                    {suggestion.state ? `${suggestion.state}, ` : ""}
+                    {suggestion.country}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         <button type="submit" className="btn btn-primary" disabled={isLoading}>
           Search
         </button>

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { type WeatherData } from "../types";
-import { type CitySuggestion } from "../types";
+import { type WeatherData, type CitySuggestion } from "../types";
 
 //Custom hook to manage weather data fetching and state
 export function useWeather() {
