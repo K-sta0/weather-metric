@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { type WeatherData, type CitySuggestion } from "../types";
+import {
+  type WeatherData,
+  type CitySuggestion,
+  type GeoapifyData,
+} from "../types";
 
 //Custom hook to manage weather data fetching and state
 export function useWeather() {
@@ -80,15 +84,32 @@ export function useWeather() {
       return;
     }
 
-    const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
-    const URL = `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${API_KEY}`;
+    const API_KEY = import.meta.env.VITE_GEOAPIFY_KEY;
+    // We add type=city so it doesn't search for streets or restaurants
+    const URL = `https://api.geoapify.com/v1/geocode/autocomplete?text=${query}&type=locality&limit=5&format=json&apiKey=${API_KEY}`;
 
     try {
       const response = await fetch(URL);
       if (!response.ok) throw new Error("Failed to fetch suggestions");
 
       const data = await response.json();
-      setSuggestions(data);
+
+      const formattedSuggestions = data.results.map((item: GeoapifyData) => ({
+        name: item.city || item.name, // Fallback to name if city is missing
+        lat: item.lat,
+        lon: item.lon,
+        country: item.country_code
+          ? item.country_code.toUpperCase()
+          : item.country,
+        state: item.state,
+      }));
+
+      // Filter out any results that might not have a valid name and limit to 5
+      const cleanSuggestions = formattedSuggestions
+        .filter((item: CitySuggestion) => item.name)
+        .slice(0, 5);
+
+      setSuggestions(cleanSuggestions);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
       setSuggestions([]);

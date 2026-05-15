@@ -19,3 +19,13 @@ export interface CitySuggestion {
   country: string;
   state?: string;
 }
+
+export interface GeoapifyData {
+  city?: string;
+  name?: string;
+  lat: number;
+  lon: number;
+  country_code?: string;
+  country: string;
+  state?: string;
+}
