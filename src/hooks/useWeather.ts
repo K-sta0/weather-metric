@@ -63,6 +63,7 @@ export function useWeather() {
       }
 
       const data = await response.json();
+      localStorage.setItem("lastCity", data.name);
       setWeather(data);
     } catch (error) {
       console.error("Error fetching weather:", error);
@@ -94,8 +95,9 @@ export function useWeather() {
 
       const data = await response.json();
 
+      // Map data strictly to our interface
       const formattedSuggestions = data.results.map((item: GeoapifyData) => ({
-        name: item.city || item.name, // Fallback to name if city is missing
+        name: item.city || item.name || "Unknown",
         lat: item.lat,
         lon: item.lon,
         country: item.country_code
@@ -104,12 +106,23 @@ export function useWeather() {
         state: item.state,
       }));
 
-      // Filter out any results that might not have a valid name and limit to 5
-      const cleanSuggestions = formattedSuggestions
-        .filter((item: CitySuggestion) => item.name)
-        .slice(0, 5);
+      // Deduplicate suggestions using a Set to prevent identical entries
+      const uniqueSuggestions: CitySuggestion[] = [];
+      const seen = new Set<string>();
 
-      setSuggestions(cleanSuggestions);
+      for (const item of formattedSuggestions) {
+        if (!item.name || item.name === "Unknown") continue;
+
+        // Create a unique fingerprint for the location (e.g., "Dresden-Saxony-DE")
+        const uniqueKey = `${item.name}-${item.state || ""}-${item.country}`;
+
+        if (!seen.has(uniqueKey)) {
+          seen.add(uniqueKey);
+          uniqueSuggestions.push(item);
+        }
+        if (uniqueSuggestions.length === 5) break;
+      }
+      setSuggestions(uniqueSuggestions);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
       setSuggestions([]);

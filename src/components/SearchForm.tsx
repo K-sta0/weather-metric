@@ -40,15 +40,24 @@ export default function SearchForm({
               {suggestions.map((suggestion, index) => (
                 <li
                   key={index}
-                  className="px-4 py-2 hover:bg-base-200 cursor-pointer text-left"
+                  className="px-4 py-2 hover:bg-base-200 cursor-pointer text-left flex items-center"
                   onClick={() => onSuggestionClick(suggestion.name)}
                 >
+                  {/* Flag image from FlagCDN */}
+                  <img
+                    src={`https://flagcdn.com/w20/${suggestion.country.toLowerCase()}.png`}
+                    alt={suggestion.country}
+                    className="w-5 h-auto mr-3 shadow-sm"
+                  />
+
                   {/* Display City name, State (if available), and Country code */}
-                  <span className="font-semibold">{suggestion.name}</span>
-                  <span className="text-sm text-gray-500 ml-2">
-                    {suggestion.state ? `${suggestion.state}, ` : ""}
-                    {suggestion.country}
-                  </span>
+                  <div>
+                    <span className="font-semibold">{suggestion.name}</span>
+                    <span className="text-sm text-gray-500 ml-2">
+                      {suggestion.state ? `${suggestion.state}, ` : ""}
+                      {suggestion.country}
+                    </span>
+                  </div>
                 </li>
               ))}
             </ul>
