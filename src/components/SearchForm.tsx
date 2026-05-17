@@ -8,7 +8,7 @@ interface SearchFormProps {
   isLoading: boolean;
   onGeolocationClick: () => void;
   suggestions: CitySuggestion[];
-  onSuggestionClick: (cityName: string) => void;
+  onSuggestionClick: (suggestion: CitySuggestion) => void;
 }
 
 export default function SearchForm({
@@ -41,7 +41,7 @@ export default function SearchForm({
                 <li
                   key={index}
                   className="px-4 py-2 hover:bg-base-200 cursor-pointer text-left flex items-center"
-                  onClick={() => onSuggestionClick(suggestion.name)}
+                  onClick={() => onSuggestionClick(suggestion)}
                 >
                   {/* Flag image from FlagCDN */}
                   <img

@@ -3,6 +3,7 @@ import SearchForm from "./components/SearchForm";
 import WeatherCard from "./components/WeatherCard";
 import { useWeather } from "./hooks/useWeather";
 import { useDebounce } from "./hooks/useDebounce";
+import { type CitySuggestion } from "./types.ts";
 
 // Function to choose the background color based on weather conditions
 const getBackgroundClass = (weatherCondition?: string) => {
@@ -34,10 +35,10 @@ function App() {
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   // Handle click on a specific city from the dropdown list
-  const handleSuggestionClick = (cityName: string) => {
-    setSearchQuery(cityName);
-    setSuggestions([]); // Hide the dropdown menu
-    fetchWeather(cityName);
+  const handleSuggestionClick = (suggestion: CitySuggestion) => {
+    setSearchQuery(suggestion.name);
+    setSuggestions([]);
+    fetchWeatherByGeolocation(suggestion.lat, suggestion.lon);
   };
 
   // We use our custom hooks
@@ -51,7 +52,6 @@ function App() {
     setSuggestions,
     fetchCitySuggestions,
   } = useWeather();
-  useWeather();
 
   // Fetch city suggestions whenever the debounced query changes
   useEffect(() => {
