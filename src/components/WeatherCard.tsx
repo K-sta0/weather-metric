@@ -1,51 +1,71 @@
 import { type WeatherData } from "../types";
 
 interface WeatherCardProps {
-  weather: WeatherData | null;
+  weather: WeatherData;
 }
 
 export default function WeatherCard({ weather }: WeatherCardProps) {
+  const { name, sys, main, weather: weatherInfo, wind } = weather;
+  const iconUrl = `https://openweathermap.org/img/wn/${weatherInfo[0].icon}@4x.png`;
+
   return (
-    <>
-      {/* Weather card */}
-      {/* Conditional rendering: If weather data exists, render the data. Otherwise, render the placeholder */}
-      {weather ? (
-        <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-300">
-          <div className="card-body items-center text-center">
-            <h2 className="card-title text-3xl">{weather.name}</h2>
+    <div className="card w-full max-w-md bg-base-100 shadow-xl backdrop-blur-md bg-opacity-80 transition-all">
+      <div className="card-body items-center text-center">
+        <h2 className="card-title text-3xl font-bold">
+          {name}, {sys.country}
+        </h2>
 
-            <img
-              src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@4x.png`}
-              alt="weather icon"
-              className="w-32 h-32 drop-shadow-lg"
-            />
+        <img
+          src={iconUrl}
+          alt={weatherInfo[0].description}
+          className="w-32 h-32 drop-shadow-md -my-4"
+        />
 
-            <p className="text-5xl font-bold text-base-content">
-              {Math.round(weather.main.temp)}°C
-            </p>
+        <div className="text-6xl font-bold text-base-content mb-1">
+          {Math.round(main.temp)}°C
+        </div>
+        <div className="text-xl capitalize text-gray-500 mb-8 font-medium">
+          {weatherInfo[0].description}
+        </div>
 
-            <p className="text-lg capitalize text-base-content/80">
-              {weather.weather[0].description}
-            </p>
+        <div className="flex w-full justify-between items-center bg-base-200 rounded-box p-4 shadow-inner">
+          <div className="flex flex-col items-center gap-1 w-1/3 border-r border-base-300">
+            <span className="text-2xl" title="Humidity">
+              💧
+            </span>
+            <span className="font-semibold text-base-content">
+              {main.humidity}%
+            </span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider">
+              Humidity
+            </span>
+          </div>
 
-            <div className="flex gap-4 mt-4 text-sm text-base-content/60">
-              <p>Feels like: {Math.round(weather.main.feels_like)}°C</p>
-              <p>Humidity: {weather.main.humidity}%</p>
-            </div>
+          <div className="flex flex-col items-center gap-1 w-1/3 border-r border-base-300">
+            <span className="text-2xl" title="Wind Speed">
+              💨
+            </span>
+            <span className="font-semibold text-base-content">
+              {wind.speed} m/s
+            </span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider">
+              Wind
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center gap-1 w-1/3">
+            <span className="text-2xl" title="Pressure">
+              🌡️
+            </span>
+            <span className="font-semibold text-base-content">
+              {main.pressure} hPa
+            </span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider">
+              Pressure
+            </span>
           </div>
         </div>
-      ) : (
-        <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-300">
-          <div className="card-body items-center text-center">
-            <h2 className="card-title text-base-content/60">
-              No city selected
-            </h2>
-            <p className="text-sm text-base-content/50">
-              Use the search bar above to find the current weather.
-            </p>
-          </div>
-        </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 }

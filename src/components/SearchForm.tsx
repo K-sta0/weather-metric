@@ -9,6 +9,7 @@ interface SearchFormProps {
   onGeolocationClick: () => void;
   suggestions: CitySuggestion[];
   onSuggestionClick: (suggestion: CitySuggestion) => void;
+  setSuggestions: (suggestions: CitySuggestion[]) => void;
 }
 
 export default function SearchForm({
@@ -19,6 +20,7 @@ export default function SearchForm({
   onGeolocationClick,
   suggestions,
   onSuggestionClick,
+  setSuggestions,
 }: SearchFormProps) {
   return (
     <>
@@ -32,6 +34,7 @@ export default function SearchForm({
             className="input input-bordered w-full"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onBlur={() => setTimeout(() => setSuggestions([]), 200)}
           />
 
           {/* Render the dropdown menu only if there are suggestions available */}
@@ -43,7 +46,6 @@ export default function SearchForm({
                   className="px-4 py-2 hover:bg-base-200 cursor-pointer text-left flex items-center"
                   onClick={() => onSuggestionClick(suggestion)}
                 >
-                  {/* Flag image from FlagCDN */}
                   <img
                     src={`https://flagcdn.com/w20/${suggestion.country.toLowerCase()}.png`}
                     alt={suggestion.country}

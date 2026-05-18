@@ -7,9 +7,8 @@ import { type CitySuggestion } from "./types.ts";
 
 // Function to choose the background color based on weather conditions
 const getBackgroundClass = (weatherCondition?: string) => {
-  if (!weatherCondition) return "bg-base-200"; // Default background
+  if (!weatherCondition) return "bg-base-200";
 
-  // We use Tailwind gradients for a modern look
   switch (weatherCondition.toLowerCase()) {
     case "clear":
       return "bg-gradient-to-br from-blue-400 to-sky-200";
@@ -31,12 +30,11 @@ function App() {
   // We store what user is typing right now
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Create a debounced version of the search query (updates after 500ms of inactivity)
+  // Create a debounced version of the search query
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
-  // Handle click on a specific city from the dropdown list
   const handleSuggestionClick = (suggestion: CitySuggestion) => {
-    setSearchQuery(suggestion.name);
+    setSearchQuery("");
     setSuggestions([]);
     fetchWeatherByGeolocation(suggestion.lat, suggestion.lon);
   };
@@ -62,7 +60,6 @@ function App() {
     }
   }, [debouncedSearchQuery]);
 
-  // Simplified submission handler
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     fetchWeather(searchQuery); // Pass the city to the hook
@@ -113,6 +110,7 @@ function App() {
           onGeolocationClick={handleGeolocationClick}
           suggestions={suggestions}
           onSuggestionClick={handleSuggestionClick}
+          setSuggestions={setSuggestions}
         />
 
         {/* Show Loading Spinner */}
@@ -143,7 +141,7 @@ function App() {
         )}
 
         {/* Render Weather Card Component ONLY if not loading and no error */}
-        {!isLoading && !error && <WeatherCard weather={weather} />}
+        {!isLoading && !error && weather && <WeatherCard weather={weather} />}
       </main>
     </div>
   );

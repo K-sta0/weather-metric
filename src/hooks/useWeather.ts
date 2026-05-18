@@ -79,14 +79,12 @@ export function useWeather() {
   };
 
   const fetchCitySuggestions = async (query: string) => {
-    // Do not fetch if the query is too short
-    if (query.trim().length < 2) {
+    if (query.trim().length < 3) {
       setSuggestions([]);
       return;
     }
 
     const API_KEY = import.meta.env.VITE_GEOAPIFY_KEY;
-    // We add type=city so it doesn't search for streets or restaurants
     const URL = `https://api.geoapify.com/v1/geocode/autocomplete?text=${query}&type=locality&limit=5&format=json&apiKey=${API_KEY}`;
 
     try {
@@ -95,7 +93,6 @@ export function useWeather() {
 
       const data = await response.json();
 
-      // Map data strictly to our interface
       const formattedSuggestions = data.results.map((item: GeoapifyData) => ({
         name: item.city || item.name || "Unknown",
         lat: item.lat,
