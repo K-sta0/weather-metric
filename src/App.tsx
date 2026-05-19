@@ -27,10 +27,7 @@ const getBackgroundClass = (weatherCondition?: string) => {
 };
 
 function App() {
-  // We store what user is typing right now
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Create a debounced version of the search query
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   const handleSuggestionClick = (suggestion: CitySuggestion) => {
@@ -39,7 +36,6 @@ function App() {
     fetchWeatherByGeolocation(suggestion.lat, suggestion.lon);
   };
 
-  // We use our custom hooks
   const {
     weather,
     isLoading,
@@ -51,7 +47,6 @@ function App() {
     fetchCitySuggestions,
   } = useWeather();
 
-  // Fetch city suggestions whenever the debounced query changes
   useEffect(() => {
     if (debouncedSearchQuery) {
       fetchCitySuggestions(debouncedSearchQuery);
@@ -62,8 +57,23 @@ function App() {
 
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    fetchWeather(searchQuery); // Pass the city to the hook
-    setSearchQuery(""); // Clear the input field
+
+    // If there are suggestions available, auto-select the most relevant one (the first one)
+    if (suggestions.length > 0) {
+      const firstSuggestion = suggestions[0];
+      setSearchQuery("");
+      setSuggestions([]);
+
+      fetchWeatherByGeolocation(firstSuggestion.lat, firstSuggestion.lon);
+      return;
+    }
+
+    // If no suggestions, proceed with the standard string-based search
+    if (searchQuery.trim().length > 0) {
+      fetchWeather(searchQuery);
+      setSearchQuery("");
+      setSuggestions([]);
+    }
   };
 
   const handleGeolocationClick = () => {
@@ -76,7 +86,6 @@ function App() {
           );
         },
         (err) => {
-          // Если пользователь запретил доступ или произошла ошибка
           console.error("Error getting location:", err);
           alert("Please allow location access to use this feature.");
         },
@@ -137,6 +146,22 @@ function App() {
               />
             </svg>
             <span>{error}</span>
+          </div>
+        )}
+
+        {/* Empty state card */}
+        {!isLoading && !error && !weather && (
+          <div className="card w-full max-w-md bg-base-100 shadow-xl backdrop-blur-md bg-opacity-80 mt-4">
+            <div className="card-body items-center text-center py-10">
+              <span className="text-6xl mb-4">🌍</span>
+              <h2 className="card-title text-2xl font-bold">
+                Welcome to Weathermetric
+              </h2>
+              <p className="text-gray-500 mt-2">
+                Enter a city name above or click the location pin 📍 to get the
+                current weather.
+              </p>
+            </div>
           </div>
         )}
 

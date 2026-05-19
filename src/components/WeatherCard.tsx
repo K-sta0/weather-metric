@@ -1,5 +1,12 @@
 import { type WeatherData } from "../types";
 
+const getFlagEmoji = (countryCode: string) => {
+  if (!countryCode) return "";
+  return countryCode
+    .toUpperCase()
+    .replace(/./g, (char) => String.fromCodePoint(char.charCodeAt(0) + 127397));
+};
+
 interface WeatherCardProps {
   weather: WeatherData;
 }
@@ -11,8 +18,13 @@ export default function WeatherCard({ weather }: WeatherCardProps) {
   return (
     <div className="card w-full max-w-md bg-base-100 shadow-xl backdrop-blur-md bg-opacity-80 transition-all">
       <div className="card-body items-center text-center">
-        <h2 className="card-title text-3xl font-bold">
-          {name}, {sys.country}
+        <h2 className="text-3xl font-bold mb-2 flex items-center justify-center gap-2">
+          <span>
+            {name}, {sys.country}
+          </span>
+          <span className="text-4xl leading-none drop-shadow-sm">
+            {getFlagEmoji(sys.country)}
+          </span>
         </h2>
 
         <img

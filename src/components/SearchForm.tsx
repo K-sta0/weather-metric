@@ -71,7 +71,7 @@ export default function SearchForm({
         </button>
         <button
           type="button"
-          className="btn bg-white hover:bg-gray-100 border-none text-xl"
+          className="btn bg-white hover:bg-gray-100 border-none text-xl shadow-lg"
           onClick={onGeolocationClick}
           disabled={isLoading}
           title="Get current location"

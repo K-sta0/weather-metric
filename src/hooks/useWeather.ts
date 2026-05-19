@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   type WeatherData,
   type CitySuggestion,
@@ -13,11 +13,9 @@ export function useWeather() {
   const [error, setError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
 
-  // This function takes a city name and does all the hard work
   const fetchWeather = async (city: string) => {
     if (city.trim() === "") return;
 
-    // Reset error and start loading
     setError(null);
     setIsLoading(true);
 
@@ -47,36 +45,40 @@ export function useWeather() {
     }
   };
 
-  const fetchWeatherByGeolocation = async (lat: number, lon: number) => {
-    // Reset error and start loading
-    setError(null);
-    setIsLoading(true);
+  const fetchWeatherByGeolocation = useCallback(
+    async (lat: number, lon: number) => {
+      // Reset error and start loading
+      setError(null);
+      setIsLoading(true);
 
-    const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
-    const URL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+      const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+      const URL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
 
-    try {
-      const response = await fetch(URL);
+      try {
+        const response = await fetch(URL);
 
-      if (!response.ok) {
-        throw new Error("City not found or API key not active yet");
+        if (!response.ok) {
+          throw new Error("City not found or API key not active yet");
+        }
+
+        const data = await response.json();
+        localStorage.setItem("lastLat", data.coord.lat.toString());
+        localStorage.setItem("lastLon", data.coord.lon.toString());
+        setWeather(data);
+      } catch (error) {
+        console.error("Error fetching weather:", error);
+        if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError("An unexpected error occurred");
+        }
+        setWeather(null);
+      } finally {
+        setIsLoading(false);
       }
-
-      const data = await response.json();
-      localStorage.setItem("lastCity", data.name);
-      setWeather(data);
-    } catch (error) {
-      console.error("Error fetching weather:", error);
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unexpected error occurred");
-      }
-      setWeather(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [],
+  );
 
   const fetchCitySuggestions = async (query: string) => {
     if (query.trim().length < 3) {
@@ -127,13 +129,14 @@ export function useWeather() {
   };
 
   useEffect(() => {
-    const savedCity = localStorage.getItem("lastCity");
-    if (savedCity !== null) {
-      setTimeout(() => {
-        fetchWeather(savedCity);
-      }, 0);
+    const savedLat = localStorage.getItem("lastLat");
+    const savedLon = localStorage.getItem("lastLon");
+
+    if (savedLat && savedLon) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchWeatherByGeolocation(parseFloat(savedLat), parseFloat(savedLon));
     }
-  }, []);
+  }, [fetchWeatherByGeolocation]);
 
   // We return only what the UI needs to see and use
   return {
