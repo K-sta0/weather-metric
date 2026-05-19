@@ -23,16 +23,28 @@
     top: -10vh;
     width: 8px;
     height: 8px;
-    background: rgba(200, 200, 200, 0.9);
-    border-radius: 50%;
+    /* Soft slightly translucent white */
+    background: rgba(255, 255, 255, 0.85);
+    /* Irregular shape instead of perfect circle */
+    border-radius: 40% 60% 60% 40%;
+    /* Soften the edges to look like fluffy snow */
+    filter: blur(1.5px);
     animation: snow-fall linear infinite;
 }
-@keyframes snow-fall {
-    0% { transform: translateY(0) translateX(0); }
-    50% { transform: translateY(57.5vh) translateX(15px); }
-    100% { transform: translateY(115vh) translateX(-15px); }
-}
 
+@keyframes snow-fall {
+    0% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+    }
+    50% {
+        /* Drifts right and rotates */
+        transform: translateY(57.5vh) translateX(25px) rotate(180deg);
+    }
+    100% {
+        /* Drifts left and completes rotation */
+        transform: translateY(115vh) translateX(-25px) rotate(360deg);
+    }
+}
 /* Clouds Movement */
 @keyframes floatClouds {
     from { left: -150px; }
