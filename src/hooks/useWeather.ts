@@ -31,6 +31,8 @@ export function useWeather() {
 
       const data = await response.json();
       localStorage.setItem("lastCity", city);
+      localStorage.removeItem("lastCustomName");
+
       setWeather(data);
     } catch (error) {
       console.error("Error fetching weather:", error);
@@ -46,7 +48,7 @@ export function useWeather() {
   };
 
   const fetchWeatherByGeolocation = useCallback(
-    async (lat: number, lon: number) => {
+    async (lat: number, lon: number, customName?: string) => {
       // Reset error and start loading
       setError(null);
       setIsLoading(true);
@@ -62,8 +64,16 @@ export function useWeather() {
         }
 
         const data = await response.json();
+
+        // Override the API's location name with our custom name if provided
+        if (customName) {
+          data.name = customName;
+          localStorage.setItem("lastCustomName", customName);
+        }
+
         localStorage.setItem("lastLat", data.coord.lat.toString());
         localStorage.setItem("lastLon", data.coord.lon.toString());
+
         setWeather(data);
       } catch (error) {
         console.error("Error fetching weather:", error);
@@ -131,10 +141,15 @@ export function useWeather() {
   useEffect(() => {
     const savedLat = localStorage.getItem("lastLat");
     const savedLon = localStorage.getItem("lastLon");
+    const savedCustomName = localStorage.getItem("lastCustomName");
 
     if (savedLat && savedLon) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      fetchWeatherByGeolocation(parseFloat(savedLat), parseFloat(savedLon));
+      fetchWeatherByGeolocation(
+        parseFloat(savedLat),
+        parseFloat(savedLon),
+        savedCustomName || undefined,
+      );
     }
   }, [fetchWeatherByGeolocation]);
 

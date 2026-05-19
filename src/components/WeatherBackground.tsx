@@ -42,7 +42,7 @@ const WeatherBackground = memo(({ weatherData }: WeatherBackgroundProps) => {
   }, [description, isNight, isOvercast]);
 
   return (
-    <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none transition-colors duration-1000">
+    <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none transition-colors duration-1000 bg-slate-900">
       {/* Night background */}
       <div
         className={`absolute inset-0 bg-gradient-to-br from-[#0c0c20] to-[#1a1a40] transition-opacity duration-1000 ${isNight && !isOvercast ? "opacity-100" : "opacity-0"}`}
@@ -91,11 +91,6 @@ const WeatherBackground = memo(({ weatherData }: WeatherBackgroundProps) => {
       {/* Fog background */}
       <div
         className={`absolute inset-0 bg-gradient-to-br from-gray-300 to-slate-400 transition-opacity duration-1000 ${mainCondition === "mist" || mainCondition === "fog" ? "opacity-100" : "opacity-0"}`}
-      />
-
-      {/* Fallback background */}
-      <div
-        className={`absolute inset-0 bg-base-200 transition-opacity duration-1000 ${!weatherData ? "opacity-100" : "opacity-0"}`}
       />
 
       {/* Night: Static Stars (Hidden during rain, snow, mist, overcast) */}

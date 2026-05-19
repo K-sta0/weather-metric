@@ -37,11 +37,10 @@
         transform: translateY(0) translateX(0) rotate(0deg);
     }
     50% {
-        /* Drifts right and rotates */
+
         transform: translateY(57.5vh) translateX(25px) rotate(180deg);
     }
     100% {
-        /* Drifts left and completes rotation */
         transform: translateY(115vh) translateX(-25px) rotate(360deg);
     }
 }

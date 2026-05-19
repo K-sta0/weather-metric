@@ -13,7 +13,7 @@ function App() {
   const handleSuggestionClick = (suggestion: CitySuggestion) => {
     setSearchQuery("");
     setSuggestions([]);
-    fetchWeatherByGeolocation(suggestion.lat, suggestion.lon);
+    fetchWeatherByGeolocation(suggestion.lat, suggestion.lon, suggestion.name);
   };
 
   const {
@@ -38,13 +38,15 @@ function App() {
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // If there are suggestions available, auto-select the most relevant one (the first one)
     if (suggestions.length > 0) {
       const firstSuggestion = suggestions[0];
       setSearchQuery("");
       setSuggestions([]);
-
-      fetchWeatherByGeolocation(firstSuggestion.lat, firstSuggestion.lon);
+      fetchWeatherByGeolocation(
+        firstSuggestion.lat,
+        firstSuggestion.lon,
+        firstSuggestion.name,
+      );
       return;
     }
 
