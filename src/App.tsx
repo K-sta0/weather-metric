@@ -4,27 +4,7 @@ import WeatherCard from "./components/WeatherCard";
 import { useWeather } from "./hooks/useWeather";
 import { useDebounce } from "./hooks/useDebounce";
 import { type CitySuggestion } from "./types.ts";
-
-// Function to choose the background color based on weather conditions
-const getBackgroundClass = (weatherCondition?: string) => {
-  if (!weatherCondition) return "bg-base-200";
-
-  switch (weatherCondition.toLowerCase()) {
-    case "clear":
-      return "bg-gradient-to-br from-blue-400 to-sky-200";
-    case "clouds":
-      return "bg-gradient-to-br from-gray-300 to-gray-100";
-    case "rain":
-    case "drizzle":
-      return "bg-gradient-to-br from-slate-700 to-slate-500";
-    case "snow":
-      return "bg-gradient-to-br from-blue-100 to-white";
-    case "thunderstorm":
-      return "bg-gradient-to-br from-gray-900 to-gray-700";
-    default:
-      return "bg-gradient-to-br from-indigo-100 to-base-200";
-  }
-};
+import WeatherBackground from "./components/WeatherBackground";
 
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -96,11 +76,8 @@ function App() {
   };
 
   return (
-    <div
-      className={`min-h-screen transition-all duration-700 ${
-        weather ? getBackgroundClass(weather.weather[0].main) : "bg-base-200"
-      }`}
-    >
+    <div className="min-h-screen relative z-0 flex flex-col">
+      <WeatherBackground weatherData={weather} />
       {/* Navigation bar */}
       <div className="navbar bg-neutral text-neutral-content shadow-sm">
         <div className="flex-1">
