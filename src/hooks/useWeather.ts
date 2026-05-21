@@ -153,7 +153,6 @@ export function useWeather() {
     }
   }, [fetchWeatherByGeolocation]);
 
-  // We return only what the UI needs to see and use
   return {
     weather,
     isLoading,

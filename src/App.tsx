@@ -5,6 +5,7 @@ import { useWeather } from "./hooks/useWeather";
 import { useDebounce } from "./hooks/useDebounce";
 import { type CitySuggestion } from "./types.ts";
 import WeatherBackground from "./components/WeatherBackground";
+import WeatherSkeleton from "./components/WeatherSkeleton";
 
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,7 +51,6 @@ function App() {
       return;
     }
 
-    // If no suggestions, proceed with the standard string-based search
     if (searchQuery.trim().length > 0) {
       fetchWeather(searchQuery);
       setSearchQuery("");
@@ -80,6 +80,7 @@ function App() {
   return (
     <div className="min-h-screen relative z-0 flex flex-col">
       <WeatherBackground weatherData={weather} />
+
       {/* Navigation bar */}
       <div className="navbar bg-neutral text-neutral-content shadow-sm">
         <div className="flex-1">
@@ -89,7 +90,6 @@ function App() {
 
       {/* Main content container */}
       <main className="p-4 md:p-8 flex justify-center flex-col items-center gap-4">
-        {/* Render Search Form Component */}
         <SearchForm
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -101,12 +101,8 @@ function App() {
           setSuggestions={setSuggestions}
         />
 
-        {/* Show Loading Spinner */}
-        {isLoading && (
-          <div className="flex justify-center items-center p-10 w-full max-w-md">
-            <span className="loading loading-spinner loading-lg text-primary"></span>
-          </div>
-        )}
+        {/* Show Skeleton */}
+        {isLoading && <WeatherSkeleton />}
 
         {/* Show Error Message */}
         {error && !isLoading && (
@@ -144,7 +140,6 @@ function App() {
           </div>
         )}
 
-        {/* Render Weather Card Component ONLY if not loading and no error */}
         {!isLoading && !error && weather && <WeatherCard weather={weather} />}
       </main>
     </div>

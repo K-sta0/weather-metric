@@ -26,10 +26,10 @@ const WeatherBackground = memo(({ weatherData }: WeatherBackgroundProps) => {
 
   // Smart Cloud Generation based on description
   const clouds = useMemo(() => {
-    let count = 5; // Default for scattered
+    let count = 5;
     if (description.includes("few")) count = 3;
     else if (description.includes("broken")) count = 8;
-    else if (isOvercast) count = 15; // Huge amount of clouds for overcast
+    else if (isOvercast) count = 15;
 
     return Array.from({ length: count }).map(() => ({
       size: Math.random() * 200 + 100,
