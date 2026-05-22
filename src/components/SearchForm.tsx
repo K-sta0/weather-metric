@@ -1,4 +1,4 @@
-import { type FormEvent } from "react";
+import { type FormEvent, useRef } from "react";
 import { type CitySuggestion } from "../types";
 
 interface SearchFormProps {
@@ -22,6 +22,14 @@ export default function SearchForm({
   onSuggestionClick,
   setSuggestions,
 }: SearchFormProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleClear = () => {
+    setSearchQuery("");
+    setSuggestions([]);
+    inputRef.current?.focus();
+  };
+
   return (
     <>
       {/* Search Form */}
@@ -36,6 +44,31 @@ export default function SearchForm({
             onChange={(e) => setSearchQuery(e.target.value)}
             onBlur={() => setTimeout(() => setSuggestions([]), 200)}
           />
+
+          {/* Clear Button */}
+          {searchQuery.length > 0 && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Clear search"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          )}
 
           {/* Render the dropdown menu only if there are suggestions available */}
           {suggestions.length > 0 && (
