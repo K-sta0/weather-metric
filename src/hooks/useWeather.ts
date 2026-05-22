@@ -3,45 +3,80 @@ import {
   type WeatherData,
   type CitySuggestion,
   type GeoapifyData,
+  type ForecastItem,
+  type DailyForecast,
 } from "../types";
 
-//Custom hook to manage weather data fetching and state
 export function useWeather() {
-  // We move all the state related to the API request here
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
+  const [forecast, setForecast] = useState<DailyForecast[] | null>(null);
+
+  const processForecastData = (list: ForecastItem[]): DailyForecast[] => {
+    const dailyData: Record<string, DailyForecast> = {};
+
+    list.forEach((item) => {
+      const date = item.dt_txt.split(" ")[0];
+
+      if (!dailyData[date]) {
+        dailyData[date] = {
+          date,
+          temp_min: item.main.temp_min,
+          temp_max: item.main.temp_max,
+          icon: item.weather[0].icon.replace("n", "d"),
+        };
+      } else {
+        if (item.main.temp_min < dailyData[date].temp_min) {
+          dailyData[date].temp_min = item.main.temp_min;
+        }
+        if (item.main.temp_max > dailyData[date].temp_max) {
+          dailyData[date].temp_max = item.main.temp_max;
+        }
+        if (item.dt_txt.includes("12:00:00")) {
+          dailyData[date].icon = item.weather[0].icon.replace("n", "d");
+        }
+      }
+    });
+
+    return Object.values(dailyData).slice(0);
+  };
 
   const fetchWeather = async (city: string) => {
     if (city.trim() === "") return;
-
     setError(null);
     setIsLoading(true);
 
     const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
-    const URL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+    const WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+    const FORECAST_URL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`;
 
     try {
-      const response = await fetch(URL);
+      const [weatherRes, forecastRes] = await Promise.all([
+        fetch(WEATHER_URL),
+        fetch(FORECAST_URL),
+      ]);
 
-      if (!response.ok) {
+      if (!weatherRes.ok || !forecastRes.ok) {
         throw new Error("City not found or API key not active yet");
       }
 
-      const data = await response.json();
+      const weatherData = await weatherRes.json();
+      const forecastRawData = await forecastRes.json();
+
       localStorage.setItem("lastCity", city);
       localStorage.removeItem("lastCustomName");
 
-      setWeather(data);
+      setWeather(weatherData);
+      setForecast(processForecastData(forecastRawData.list));
     } catch (error) {
       console.error("Error fetching weather:", error);
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unexpected error occurred");
-      }
+      setError(
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      );
       setWeather(null);
+      setForecast(null);
     } finally {
       setIsLoading(false);
     }
@@ -49,40 +84,45 @@ export function useWeather() {
 
   const fetchWeatherByGeolocation = useCallback(
     async (lat: number, lon: number, customName?: string) => {
-      // Reset error and start loading
       setError(null);
       setIsLoading(true);
 
       const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
-      const URL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+      const WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+      const FORECAST_URL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
 
       try {
-        const response = await fetch(URL);
+        const [weatherRes, forecastRes] = await Promise.all([
+          fetch(WEATHER_URL),
+          fetch(FORECAST_URL),
+        ]);
 
-        if (!response.ok) {
+        if (!weatherRes.ok || !forecastRes.ok) {
           throw new Error("City not found or API key not active yet");
         }
 
-        const data = await response.json();
+        const weatherData = await weatherRes.json();
+        const forecastRawData = await forecastRes.json();
 
-        // Override the API's location name with our custom name if provided
         if (customName) {
-          data.name = customName;
+          weatherData.name = customName;
           localStorage.setItem("lastCustomName", customName);
         }
 
-        localStorage.setItem("lastLat", data.coord.lat.toString());
-        localStorage.setItem("lastLon", data.coord.lon.toString());
+        localStorage.setItem("lastLat", weatherData.coord.lat.toString());
+        localStorage.setItem("lastLon", weatherData.coord.lon.toString());
 
-        setWeather(data);
+        setWeather(weatherData);
+        setForecast(processForecastData(forecastRawData.list));
       } catch (error) {
         console.error("Error fetching weather:", error);
-        if (error instanceof Error) {
-          setError(error.message);
-        } else {
-          setError("An unexpected error occurred");
-        }
+        setError(
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+        );
         setWeather(null);
+        setForecast(null);
       } finally {
         setIsLoading(false);
       }
@@ -104,7 +144,6 @@ export function useWeather() {
       if (!response.ok) throw new Error("Failed to fetch suggestions");
 
       const data = await response.json();
-
       const formattedSuggestions = data.results.map((item: GeoapifyData) => ({
         name: item.city || item.name || "Unknown",
         lat: item.lat,
@@ -115,14 +154,11 @@ export function useWeather() {
         state: item.state,
       }));
 
-      // Deduplicate suggestions using a Set to prevent identical entries
       const uniqueSuggestions: CitySuggestion[] = [];
       const seen = new Set<string>();
 
       for (const item of formattedSuggestions) {
         if (!item.name || item.name === "Unknown") continue;
-
-        // Create a unique fingerprint for the location (e.g., "Dresden-Saxony-DE")
         const uniqueKey = `${item.name}-${item.state || ""}-${item.country}`;
 
         if (!seen.has(uniqueKey)) {
@@ -162,5 +198,6 @@ export function useWeather() {
     suggestions,
     setSuggestions,
     fetchCitySuggestions,
+    forecast,
   };
 }

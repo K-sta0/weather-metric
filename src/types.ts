@@ -36,3 +36,25 @@ export interface GeoapifyData {
   country: string;
   state?: string;
 }
+
+export interface ForecastItem {
+  dt: number;
+  main: {
+    temp: number;
+    temp_min: number;
+    temp_max: number;
+  };
+  weather: {
+    main: string;
+    description: string;
+    icon: string;
+  }[];
+  dt_txt: string;
+}
+
+export interface DailyForecast {
+  date: string;
+  temp_min: number;
+  temp_max: number;
+  icon: string;
+}

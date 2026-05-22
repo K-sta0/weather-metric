@@ -6,6 +6,7 @@ import { useDebounce } from "./hooks/useDebounce";
 import { type CitySuggestion } from "./types.ts";
 import WeatherBackground from "./components/WeatherBackground";
 import WeatherSkeleton from "./components/WeatherSkeleton";
+import ForecastGrid from "./components/ForecastGrid.tsx";
 
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,6 +27,7 @@ function App() {
     suggestions,
     setSuggestions,
     fetchCitySuggestions,
+    forecast,
   } = useWeather();
 
   useEffect(() => {
@@ -141,6 +143,10 @@ function App() {
         )}
 
         {!isLoading && !error && weather && <WeatherCard weather={weather} />}
+
+        {!isLoading && !error && forecast && forecast.length > 0 && (
+          <ForecastGrid data={forecast} isLoading={isLoading} />
+        )}
       </main>
     </div>
   );
