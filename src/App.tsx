@@ -28,6 +28,7 @@ function App() {
     setSuggestions,
     fetchCitySuggestions,
     forecast,
+    clearWeather,
   } = useWeather();
 
   useEffect(() => {
@@ -79,6 +80,11 @@ function App() {
     }
   };
 
+  const handleLogoClick = () => {
+    setSearchQuery("");
+    clearWeather();
+  };
+
   return (
     <div className="min-h-screen relative z-0 flex flex-col">
       <WeatherBackground weatherData={weather} />
@@ -86,7 +92,12 @@ function App() {
       {/* Navigation bar */}
       <div className="navbar bg-neutral text-neutral-content shadow-sm">
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl">Weathermetric</a>
+          <a
+            className="btn btn-ghost text-xl cursor-pointer"
+            onClick={handleLogoClick}
+          >
+            Weathermetric
+          </a>
         </div>
       </div>
 

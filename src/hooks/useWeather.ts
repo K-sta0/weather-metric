@@ -174,6 +174,18 @@ export function useWeather() {
     }
   };
 
+  const clearWeather = useCallback(() => {
+    setWeather(null);
+    setForecast(null);
+    setError(null);
+    setSuggestions([]);
+
+    localStorage.removeItem("lastCity");
+    localStorage.removeItem("lastLat");
+    localStorage.removeItem("lastLon");
+    localStorage.removeItem("lastCustomName");
+  }, []);
+
   useEffect(() => {
     const savedLat = localStorage.getItem("lastLat");
     const savedLon = localStorage.getItem("lastLon");
@@ -199,5 +211,6 @@ export function useWeather() {
     setSuggestions,
     fetchCitySuggestions,
     forecast,
+    clearWeather,
   };
 }
