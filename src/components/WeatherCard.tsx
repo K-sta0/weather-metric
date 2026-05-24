@@ -1,4 +1,5 @@
 import { type WeatherData } from "../types";
+import { type MetricType } from "./WeatherChart";
 
 const getFlagEmoji = (countryCode: string) => {
   if (!countryCode) return "";
@@ -9,9 +10,15 @@ const getFlagEmoji = (countryCode: string) => {
 
 interface WeatherCardProps {
   weather: WeatherData;
+  onMetricClick: (metric: MetricType) => void;
+  activeMetric: MetricType;
 }
 
-export default function WeatherCard({ weather }: WeatherCardProps) {
+export default function WeatherCard({
+  weather,
+  onMetricClick,
+  activeMetric,
+}: WeatherCardProps) {
   const { name, sys, main, weather: weatherInfo, wind } = weather;
   const iconUrl = `https://openweathermap.org/img/wn/${weatherInfo[0].icon}@4x.png`;
 
@@ -40,42 +47,60 @@ export default function WeatherCard({ weather }: WeatherCardProps) {
           {weatherInfo[0].description}
         </div>
 
-        <div className="flex w-full justify-between items-center bg-base-200 rounded-box p-3 sm:p-4 shadow-inner">
-          <div className="flex flex-col items-center gap-1 w-1/3 border-r border-base-300 px-1">
-            <span className="text-xl sm:text-2xl" title="Humidity">
+        <div className="flex w-full justify-between items-stretch bg-base-200 rounded-box shadow-inner mt-2 overflow-hidden border border-base-300/30">
+          <button
+            type="button"
+            onClick={() =>
+              onMetricClick(activeMetric === "humidity" ? null : "humidity")
+            }
+            className={`flex-1 flex flex-col items-center gap-1 py-4 px-2 border-r border-base-300 hover:bg-base-300/60 transition-colors focus:outline-none focus:bg-base-300/70 ${activeMetric === "humidity" ? "bg-base-300" : ""}`}
+          >
+            <span className="text-lg sm:text-xl" title="Humidity">
               💧
             </span>
-            <span className="font-semibold text-sm sm:text-base text-base-content">
+            <span className="font-semibold text-sm text-base-content">
               {main.humidity}%
             </span>
-            <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">
+            <span className="text-[10px] text-gray-500 uppercase tracking-wider">
               Humidity
             </span>
-          </div>
+          </button>
 
-          <div className="flex flex-col items-center gap-1 w-1/3 border-r border-base-300 px-1">
-            <span className="text-xl sm:text-2xl" title="Wind Speed">
+          <button
+            type="button"
+            onClick={() =>
+              onMetricClick(activeMetric === "wind" ? null : "wind")
+            }
+            className={`flex-1 flex flex-col items-center gap-1 py-4 px-2 border-r border-base-300 hover:bg-base-300/60 transition-colors focus:outline-none focus:bg-base-300/70 ${activeMetric === "wind" ? "bg-base-300" : ""}`}
+          >
+            <span className="text-lg sm:text-xl" title="Wind Speed">
               💨
             </span>
-            <span className="font-semibold text-sm sm:text-base text-base-content text-center leading-tight">
+            <span className="font-semibold text-sm text-base-content text-center leading-tight">
               {wind.speed} m/s
             </span>
-            <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">
+            <span className="text-[10px] text-gray-500 uppercase tracking-wider">
               Wind
             </span>
-          </div>
+          </button>
 
-          <div className="flex flex-col items-center gap-1 w-1/3 px-1">
-            <span className="text-xl sm:text-2xl" title="Pressure">
+          <button
+            type="button"
+            onClick={() =>
+              onMetricClick(activeMetric === "pressure" ? null : "pressure")
+            }
+            className={`flex-1 flex flex-col items-center gap-1 py-4 px-2 border-r last:border-r-0 border-base-300 hover:bg-base-300/60 transition-colors focus:outline-none focus:bg-base-300/70 ${activeMetric === "pressure" ? "bg-base-300" : ""}`}
+          >
+            <span className="text-lg sm:text-xl" title="Pressure">
               🌡️
             </span>
-            <span className="font-semibold text-sm sm:text-base text-base-content text-center leading-tight">
+            <span className="font-semibold text-sm text-base-content text-center leading-tight">
               {main.pressure} hPa
             </span>
-            <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">
+            <span className="text-[10px] text-gray-500 uppercase tracking-wider">
               Pressure
             </span>
-          </div>
+          </button>
         </div>
       </div>
     </div>

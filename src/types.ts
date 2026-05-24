@@ -1,4 +1,3 @@
-// defining the exact shape of the data we expect from the API
 export interface WeatherData {
   name: string;
   sys: {
@@ -6,15 +5,14 @@ export interface WeatherData {
   };
   main: {
     temp: number;
-    feels_like: number;
     humidity: number;
     pressure: number;
   };
-  weather: Array<{
+  weather: {
+    main: string;
     description: string;
     icon: string;
-    main: string;
-  }>;
+  }[];
   wind: {
     speed: number;
   };
@@ -43,12 +41,18 @@ export interface ForecastItem {
     temp: number;
     temp_min: number;
     temp_max: number;
+    humidity: number;
+    pressure: number;
   };
   weather: {
     main: string;
     description: string;
     icon: string;
   }[];
+  wind: {
+    speed: number;
+    deg?: number;
+  };
   dt_txt: string;
 }
 

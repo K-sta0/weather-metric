@@ -7,10 +7,12 @@ import { type CitySuggestion } from "./types.ts";
 import WeatherBackground from "./components/WeatherBackground";
 import WeatherSkeleton from "./components/WeatherSkeleton";
 import ForecastGrid from "./components/ForecastGrid.tsx";
+import WeatherChart, { type MetricType } from "./components/WeatherChart";
 
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
+  const [activeMetric, setActiveMetric] = useState<MetricType>(null);
 
   const handleSuggestionClick = (suggestion: CitySuggestion) => {
     setSearchQuery("");
@@ -29,6 +31,7 @@ function App() {
     fetchCitySuggestions,
     forecast,
     clearWeather,
+    rawForecast,
   } = useWeather();
 
   useEffect(() => {
@@ -82,6 +85,7 @@ function App() {
 
   const handleLogoClick = () => {
     setSearchQuery("");
+    setActiveMetric(null);
     clearWeather();
   };
 
@@ -153,7 +157,17 @@ function App() {
           </div>
         )}
 
-        {!isLoading && !error && weather && <WeatherCard weather={weather} />}
+        {!isLoading && !error && weather && (
+          <WeatherCard
+            weather={weather}
+            onMetricClick={setActiveMetric}
+            activeMetric={activeMetric}
+          />
+        )}
+
+        {!isLoading && !error && activeMetric && rawForecast && (
+          <WeatherChart data={rawForecast} metric={activeMetric} />
+        )}
 
         {!isLoading && !error && forecast && forecast.length > 0 && (
           <ForecastGrid data={forecast} isLoading={isLoading} />

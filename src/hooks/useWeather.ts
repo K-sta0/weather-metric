@@ -13,6 +13,7 @@ export function useWeather() {
   const [error, setError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
   const [forecast, setForecast] = useState<DailyForecast[] | null>(null);
+  const [rawForecast, setRawForecast] = useState<ForecastItem[] | null>(null);
 
   const processForecastData = (list: ForecastItem[]): DailyForecast[] => {
     const dailyData: Record<string, DailyForecast> = {};
@@ -70,6 +71,7 @@ export function useWeather() {
 
       setWeather(weatherData);
       setForecast(processForecastData(forecastRawData.list));
+      setRawForecast(forecastRawData.list);
     } catch (error) {
       console.error("Error fetching weather:", error);
       setError(
@@ -114,6 +116,7 @@ export function useWeather() {
 
         setWeather(weatherData);
         setForecast(processForecastData(forecastRawData.list));
+        setRawForecast(forecastRawData.list);
       } catch (error) {
         console.error("Error fetching weather:", error);
         setError(
@@ -177,6 +180,7 @@ export function useWeather() {
   const clearWeather = useCallback(() => {
     setWeather(null);
     setForecast(null);
+    setRawForecast(null);
     setError(null);
     setSuggestions([]);
 
@@ -211,6 +215,7 @@ export function useWeather() {
     setSuggestions,
     fetchCitySuggestions,
     forecast,
+    rawForecast,
     clearWeather,
   };
 }
