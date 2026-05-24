@@ -8,6 +8,7 @@ import WeatherBackground from "./components/WeatherBackground";
 import WeatherSkeleton from "./components/WeatherSkeleton";
 import ForecastGrid from "./components/ForecastGrid.tsx";
 import WeatherChart, { type MetricType } from "./components/WeatherChart";
+import { AnimatePresence, motion } from "framer-motion";
 
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -165,9 +166,19 @@ function App() {
           />
         )}
 
-        {!isLoading && !error && activeMetric && rawForecast && (
-          <WeatherChart data={rawForecast} metric={activeMetric} />
-        )}
+        <AnimatePresence>
+          {!isLoading && !error && activeMetric && rawForecast && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="w-full max-w-md overflow-hidden"
+            >
+              <WeatherChart data={rawForecast} metric={activeMetric} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {!isLoading && !error && forecast && forecast.length > 0 && (
           <ForecastGrid data={forecast} isLoading={isLoading} />

@@ -18,7 +18,7 @@ const ForecastGrid = memo(({ data, isLoading }: ForecastGridProps) => {
 
         {/* Unified interactive container */}
         <div
-          className="flex flex-row w-full bg-base-200/50 rounded-2xl border border-base-200/50 shadow-inner
+          className="flex flex-row w-full bg-base-200/50 rounded-2xl border border-base-300/50 shadow-inner
                         overflow-x-auto overflow-y-hidden snap-x snap-mandatory"
         >
           {data.map((day) => {

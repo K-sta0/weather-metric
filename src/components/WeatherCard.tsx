@@ -43,17 +43,19 @@ export default function WeatherCard({
         <div className="text-5xl sm:text-6xl font-bold text-base-content mb-1">
           {Math.round(main.temp)}°C
         </div>
+
         <div className="text-lg sm:text-xl capitalize text-gray-500 mb-6 sm:mb-8 font-medium">
           {weatherInfo[0].description}
         </div>
 
-        <div className="flex w-full justify-between items-stretch bg-base-200 rounded-box shadow-inner mt-2 overflow-hidden border border-base-300/30">
+        {/* Bottom bar */}
+        <div className="flex w-full items-stretch bg-base-200/50 rounded-2xl border border-base-300/50 shadow-inner overflow-hidden mt-4">
           <button
             type="button"
             onClick={() =>
               onMetricClick(activeMetric === "humidity" ? null : "humidity")
             }
-            className={`flex-1 flex flex-col items-center gap-1 py-4 px-2 border-r border-base-300 hover:bg-base-300/60 transition-colors focus:outline-none focus:bg-base-300/70 ${activeMetric === "humidity" ? "bg-base-300" : ""}`}
+            className={`flex-1 flex flex-col items-center gap-1 py-4 px-2 border-r border-base-300/50 hover:bg-base-300/50 transition-colors duration-200 focus:outline-none ${activeMetric === "humidity" ? "bg-base-300/60 shadow-inner" : "bg-transparent"}`}
           >
             <span className="text-lg sm:text-xl" title="Humidity">
               💧
@@ -65,13 +67,12 @@ export default function WeatherCard({
               Humidity
             </span>
           </button>
-
           <button
             type="button"
             onClick={() =>
               onMetricClick(activeMetric === "wind" ? null : "wind")
             }
-            className={`flex-1 flex flex-col items-center gap-1 py-4 px-2 border-r border-base-300 hover:bg-base-300/60 transition-colors focus:outline-none focus:bg-base-300/70 ${activeMetric === "wind" ? "bg-base-300" : ""}`}
+            className={`flex-1 flex flex-col items-center gap-1 py-4 px-2 border-r border-base-300/50 hover:bg-base-300/50 transition-colors duration-200 focus:outline-none ${activeMetric === "wind" ? "bg-base-300/60 shadow-inner" : "bg-transparent"}`}
           >
             <span className="text-lg sm:text-xl" title="Wind Speed">
               💨
@@ -83,13 +84,12 @@ export default function WeatherCard({
               Wind
             </span>
           </button>
-
           <button
             type="button"
             onClick={() =>
               onMetricClick(activeMetric === "pressure" ? null : "pressure")
             }
-            className={`flex-1 flex flex-col items-center gap-1 py-4 px-2 border-r last:border-r-0 border-base-300 hover:bg-base-300/60 transition-colors focus:outline-none focus:bg-base-300/70 ${activeMetric === "pressure" ? "bg-base-300" : ""}`}
+            className={`flex-1 flex flex-col items-center gap-1 py-4 px-2 hover:bg-base-300/50 transition-colors duration-200 focus:outline-none ${activeMetric === "pressure" ? "bg-base-300/60 shadow-inner" : "bg-transparent"}`}
           >
             <span className="text-lg sm:text-xl" title="Pressure">
               🌡️

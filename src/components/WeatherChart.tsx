@@ -17,9 +17,23 @@ interface WeatherChartProps {
   metric: MetricType;
 }
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    stroke: string;
+  }>;
+  label?: string;
+  unit: string;
+}
+
 const formatXAxis = (dateStr: string) => {
   const date = new Date(dateStr);
-  return date.toLocaleTimeString("en-US", { hour: "numeric", hour12: true });
+  return date.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 };
 
 const metricConfig = {
@@ -28,26 +42,51 @@ const metricConfig = {
     color: "#3b82f6",
     label: "Humidity",
     unit: "%",
+    yAxisWidth: 35,
   },
   wind: {
     key: "wind.speed",
     color: "#8b5cf6",
     label: "Wind Speed",
     unit: "m/s",
+    yAxisWidth: 35,
   },
   pressure: {
     key: "main.pressure",
     color: "#f59e0b",
     label: "Pressure",
     unit: "hPa",
+    yAxisWidth: 60,
   },
 };
 
-const CustomTooltip = ({ active, payload, label, unit }: any) => {
-  if (active && payload && payload.length) {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+  unit,
+}: CustomTooltipProps) => {
+  if (active && payload && payload.length && label) {
+    const dateObj = new Date(label);
+
+    const dayName = dateObj.toLocaleString("en-GB", { weekday: "short" });
+    const dayMonth = dateObj.toLocaleString("en-GB", {
+      day: "numeric",
+      month: "short",
+    });
+    const time = dateObj.toLocaleString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    const formattedDate = `${dayName}, ${dayMonth}, ${time}`;
+
     return (
       <div className="bg-base-100/90 backdrop-blur-sm p-3 rounded-xl shadow-xl border border-base-200 text-center">
-        <p className="font-bold text-sm mb-1">{label}</p>
+        <p className="font-bold text-sm mb-1 text-base-content/70">
+          {formattedDate}
+        </p>
         <p
           className="font-extrabold text-lg"
           style={{ color: payload[0].stroke }}
@@ -81,50 +120,53 @@ const WeatherChart = memo(({ data, metric }: WeatherChartProps) => {
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart
             data={chartData}
-            margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
+            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
           >
             <defs>
-              <linearGradient
-                id={`color-${metric}`}
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
+              <linearGradient id={`color${metric}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={config.color} stopOpacity={0.3} />
                 <stop offset="95%" stopColor={config.color} stopOpacity={0} />
               </linearGradient>
             </defs>
+
             <CartesianGrid
               strokeDasharray="3 3"
-              opacity={0.1}
               vertical={false}
+              stroke="currentColor"
+              strokeOpacity={0.15}
             />
+
             <XAxis
               dataKey="time"
               tickFormatter={formatXAxis}
               tick={{ fill: "currentColor", opacity: 0.5, fontSize: 12 }}
               axisLine={false}
               tickLine={false}
+              tickMargin={10}
+              padding={{ left: 10, right: 10 }}
             />
             <YAxis
               tick={{ fill: "currentColor", opacity: 0.5, fontSize: 12 }}
               axisLine={false}
               tickLine={false}
+              tickMargin={10}
               domain={["auto", "auto"]}
+              width={config.yAxisWidth}
             />
-            <Tooltip
-              content={<CustomTooltip unit={config.unit} />}
-              cursor={{ stroke: "currentColor", opacity: 0.2 }}
-            />
+            <Tooltip content={<CustomTooltip unit={config.unit} />} />
             <Area
               type="monotone"
               dataKey={config.key}
               stroke={config.color}
               strokeWidth={3}
               fillOpacity={1}
-              fill={`url(#color-${metric})`}
-              activeDot={{ r: 6, strokeWidth: 0 }}
+              fill={`url(#color${metric})`}
+              activeDot={{
+                r: 6,
+                fill: config.color,
+                stroke: "var(--fallback-b1,oklch(var(--b1)))",
+                strokeWidth: 2,
+              }}
             />
           </AreaChart>
         </ResponsiveContainer>
