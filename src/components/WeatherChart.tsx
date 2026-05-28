@@ -49,7 +49,7 @@ const metricConfig = {
     color: "#8b5cf6",
     label: "Wind Speed",
     unit: "m/s",
-    yAxisWidth: 35,
+    yAxisWidth: 45,
   },
   pressure: {
     key: "main.pressure",

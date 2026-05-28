@@ -12,15 +12,22 @@ interface WeatherCardProps {
   weather: WeatherData;
   onMetricClick: (metric: MetricType) => void;
   activeMetric: MetricType;
+  unit: "C" | "F";
 }
 
 export default function WeatherCard({
   weather,
   onMetricClick,
   activeMetric,
+  unit,
 }: WeatherCardProps) {
   const { name, sys, main, weather: weatherInfo, wind } = weather;
   const iconUrl = `https://openweathermap.org/img/wn/${weatherInfo[0].icon}@4x.png`;
+
+  const displayTemp = () => {
+    if (unit === "C") return Math.round(main.temp);
+    return Math.round((main.temp * 9) / 5 + 32);
+  };
 
   return (
     <div className="card w-full max-w-md bg-base-100 shadow-xl backdrop-blur-md bg-opacity-80 transition-all">
@@ -41,7 +48,7 @@ export default function WeatherCard({
         />
 
         <div className="text-5xl sm:text-6xl font-bold text-base-content mb-1">
-          {Math.round(main.temp)}°C
+          {displayTemp()}°{unit}
         </div>
 
         <div className="text-lg sm:text-xl capitalize text-gray-500 mb-6 sm:mb-8 font-medium">

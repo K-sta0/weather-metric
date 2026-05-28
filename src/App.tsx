@@ -14,12 +14,19 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const [activeMetric, setActiveMetric] = useState<MetricType>(null);
+  const [unit, setUnit] = useState<"C" | "F">(() => {
+    return (localStorage.getItem("weatherUnit") as "C" | "F") || "C";
+  });
 
   const handleSuggestionClick = (suggestion: CitySuggestion) => {
     setSearchQuery("");
     setSuggestions([]);
     fetchWeatherByGeolocation(suggestion.lat, suggestion.lon, suggestion.name);
   };
+
+  useEffect(() => {
+    localStorage.setItem("weatherUnit", unit);
+  }, [unit]);
 
   const {
     weather,
@@ -104,6 +111,30 @@ function App() {
             Weathermetric
           </a>
         </div>
+
+        {/* Temperature toggle switch */}
+        <div className="flex-none bg-base-300/10 p-1 rounded-xl border border-white/10 flex items-center gap-1">
+          <button
+            onClick={() => setUnit("C")}
+            className={`px-3 py-1 text-xs sm:text-sm font-extrabold rounded-lg transition-all duration-200 ${
+              unit === "C"
+                ? "bg-primary text-primary-content shadow-sm"
+                : "text-neutral-content/60 hover:text-neutral-content"
+            }`}
+          >
+            °C
+          </button>
+          <button
+            onClick={() => setUnit("F")}
+            className={`px-3 py-1 text-xs sm:text-sm font-extrabold rounded-lg transition-all duration-200 ${
+              unit === "F"
+                ? "bg-primary text-primary-content shadow-sm"
+                : "text-neutral-content/60 hover:text-neutral-content"
+            }`}
+          >
+            °F
+          </button>
+        </div>
       </div>
 
       {/* Main content container */}
@@ -163,6 +194,7 @@ function App() {
             weather={weather}
             onMetricClick={setActiveMetric}
             activeMetric={activeMetric}
+            unit={unit}
           />
         )}
 
@@ -181,7 +213,7 @@ function App() {
         </AnimatePresence>
 
         {!isLoading && !error && forecast && forecast.length > 0 && (
-          <ForecastGrid data={forecast} isLoading={isLoading} />
+          <ForecastGrid data={forecast} isLoading={isLoading} unit={unit} />
         )}
       </main>
     </div>

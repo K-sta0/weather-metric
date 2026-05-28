@@ -4,10 +4,16 @@ import { type DailyForecast } from "../types";
 interface ForecastGridProps {
   data: DailyForecast[] | null;
   isLoading: boolean;
+  unit: "C" | "F";
 }
 
-const ForecastGrid = memo(({ data, isLoading }: ForecastGridProps) => {
+const ForecastGrid = memo(({ data, isLoading, unit }: ForecastGridProps) => {
   if (isLoading || !data || data.length === 0) return null;
+
+  const convertTemp = (celsius: number) => {
+    if (unit === "C") return Math.round(celsius);
+    return Math.round((celsius * 9) / 5 + 32);
+  };
 
   return (
     <div className="card w-full max-w-4xl bg-base-100 shadow-xl backdrop-blur-md bg-opacity-90 mt-6 mb-10 overflow-hidden border border-white/20">
@@ -60,13 +66,13 @@ const ForecastGrid = memo(({ data, isLoading }: ForecastGridProps) => {
 
                 <div className="flex gap-2 sm:gap-4 mt-2 font-extrabold text-base sm:text-xl">
                   <span className="text-base-content" title="Max Temperature">
-                    {Math.round(day.temp_max)}°
+                    {convertTemp(day.temp_max)}°
                   </span>
                   <span
                     className="text-base-content/40"
                     title="Min Temperature"
                   >
-                    {Math.round(day.temp_min)}°
+                    {convertTemp(day.temp_min)}°
                   </span>
                 </div>
               </button>
