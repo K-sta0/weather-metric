@@ -8,6 +8,7 @@ import WeatherBackground from "./components/WeatherBackground";
 import WeatherSkeleton from "./components/WeatherSkeleton";
 import ForecastGrid from "./components/ForecastGrid.tsx";
 import WeatherChart, { type MetricType } from "./components/WeatherChart";
+import DaySummary from "./components/DaySummary";
 import { AnimatePresence, motion } from "framer-motion";
 
 function App() {
@@ -17,10 +18,12 @@ function App() {
   const [unit, setUnit] = useState<"C" | "F">(() => {
     return (localStorage.getItem("weatherUnit") as "C" | "F") || "C";
   });
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const handleSuggestionClick = (suggestion: CitySuggestion) => {
     setSearchQuery("");
     setSuggestions([]);
+    setSelectedDate(null);
     fetchWeatherByGeolocation(suggestion.lat, suggestion.lon, suggestion.name);
   };
 
@@ -57,6 +60,7 @@ function App() {
       const firstSuggestion = suggestions[0];
       setSearchQuery("");
       setSuggestions([]);
+      setSelectedDate(null);
       fetchWeatherByGeolocation(
         firstSuggestion.lat,
         firstSuggestion.lon,
@@ -69,10 +73,12 @@ function App() {
       fetchWeather(searchQuery);
       setSearchQuery("");
       setSuggestions([]);
+      setSelectedDate(null);
     }
   };
 
   const handleGeolocationClick = () => {
+    setSelectedDate(null);
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -94,6 +100,7 @@ function App() {
   const handleLogoClick = () => {
     setSearchQuery("");
     setActiveMetric(null);
+    setSelectedDate(null);
     clearWeather();
   };
 
@@ -213,8 +220,17 @@ function App() {
         </AnimatePresence>
 
         {!isLoading && !error && forecast && forecast.length > 0 && (
-          <ForecastGrid data={forecast} isLoading={isLoading} unit={unit} />
+          <ForecastGrid
+            data={forecast}
+            isLoading={isLoading}
+            unit={unit}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
         )}
+
+        {/* Detailed summary component */}
+        <DaySummary date={selectedDate} rawForecast={rawForecast} unit={unit} />
       </main>
     </div>
   );
