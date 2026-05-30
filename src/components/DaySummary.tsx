@@ -36,7 +36,7 @@ const DaySummary = memo(({ date, rawForecast, unit }: DaySummaryProps) => {
         transition={{ duration: 0.3 }}
         className="w-full max-w-4xl mt-2 mb-8"
       >
-        <div className="card bg-base-100/90 shadow-xl backdrop-blur-md border border-base-300/50">
+        <div className="card w-full bg-base-100 shadow-xl backdrop-blur-md bg-opacity-90 border border-white/20">
           <div className="card-body p-4 sm:p-6">
             <h3 className="text-lg font-bold text-base-content mb-4 flex items-center gap-2">
               <span>🕒</span> Hourly Details for {formattedDate}
@@ -66,8 +66,8 @@ const DaySummary = memo(({ date, rawForecast, unit }: DaySummaryProps) => {
                         alt={item.weather[0].description}
                         className="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-sm"
                       />
-                      <span className="text-xl sm:text-2xl font-extrabold text-base-content w-10 sm:w-12 text-left">
-                        {convertTemp(item.main.temp)}°
+                      <span className="text-xl sm:text-2xl font-extrabold text-base-content w-16 sm:w-20 text-left">
+                        {convertTemp(item.main.temp)}°{unit}
                       </span>
                     </div>
 
