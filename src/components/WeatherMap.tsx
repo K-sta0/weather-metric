@@ -33,6 +33,7 @@ interface WeatherMapProps {
 
 const WeatherMap = memo(({ lat, lon, city }: WeatherMapProps) => {
   const position: [number, number] = [lat, lon];
+  const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
 
   return (
     <div className="w-full max-w-4xl mt-6 mb-4">
@@ -44,13 +45,17 @@ const WeatherMap = memo(({ lat, lon, city }: WeatherMapProps) => {
               center={position}
               zoom={10}
               scrollWheelZoom={true}
+              attributionControl={false}
               style={{ height: "100%", width: "100%", zIndex: 0 }}
             >
               <ChangeView center={position} />
 
+              <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
+
               <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                url={`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${apiKey}`}
+                opacity={1}
+                className="saturate-[300%] contrast-[200%]"
               />
 
               <Marker position={position}>
