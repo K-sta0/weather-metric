@@ -16,6 +16,10 @@ export interface WeatherData {
   wind: {
     speed: number;
   };
+  coord: {
+    lat: number;
+    lon: number;
+  };
 }
 export interface CitySuggestion {
   name: string;

@@ -10,6 +10,7 @@ import ForecastGrid from "./components/ForecastGrid.tsx";
 import WeatherChart, { type MetricType } from "./components/WeatherChart";
 import DaySummary from "./components/DaySummary";
 import { AnimatePresence, motion } from "framer-motion";
+import WeatherMap from "./components/WeatherMap";
 
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -202,6 +203,14 @@ function App() {
             onMetricClick={setActiveMetric}
             activeMetric={activeMetric}
             unit={unit}
+          />
+        )}
+
+        {!isLoading && !error && weather && (
+          <WeatherMap
+            lat={weather.coord.lat}
+            lon={weather.coord.lon}
+            city={weather.name}
           />
         )}
 
