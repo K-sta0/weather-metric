@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { type WeatherData } from "../types";
 import { type MetricType } from "./WeatherChart";
 
@@ -21,8 +22,33 @@ export default function WeatherCard({
   activeMetric,
   unit,
 }: WeatherCardProps) {
-  const { name, sys, main, weather: weatherInfo, wind } = weather;
+  const { name, sys, main, weather: weatherInfo, wind, timezone } = weather;
   const iconUrl = `https://openweathermap.org/img/wn/${weatherInfo[0].icon}@4x.png`;
+
+  const [localTime, setLocalTime] = useState<string>("");
+
+  useEffect(() => {
+    if (timezone === undefined) return;
+
+    const updateClock = () => {
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      const cityDate = new Date(utc + timezone * 1000);
+
+      setLocalTime(
+        cityDate.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }),
+      );
+    };
+
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
+
+    return () => clearInterval(interval);
+  }, [timezone]);
 
   const displayTemp = () => {
     if (unit === "C") return Math.round(main.temp);
@@ -40,6 +66,13 @@ export default function WeatherCard({
             {getFlagEmoji(sys.country)}
           </span>
         </h2>
+
+        {localTime && (
+          <div className="text-gray-500 font-medium mb-2 -mt-1">
+            Local time:{" "}
+            <span className="font-bold text-base-content">{localTime}</span>
+          </div>
+        )}
 
         <img
           src={iconUrl}

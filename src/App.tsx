@@ -206,14 +206,6 @@ function App() {
           />
         )}
 
-        {!isLoading && !error && weather && (
-          <WeatherMap
-            lat={weather.coord.lat}
-            lon={weather.coord.lon}
-            city={weather.name}
-          />
-        )}
-
         <AnimatePresence>
           {!isLoading && !error && activeMetric && rawForecast && (
             <motion.div
@@ -227,6 +219,14 @@ function App() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {!isLoading && !error && weather && (
+          <WeatherMap
+            lat={weather.coord.lat}
+            lon={weather.coord.lon}
+            city={weather.name}
+          />
+        )}
 
         {!isLoading && !error && forecast && forecast.length > 0 && (
           <ForecastGrid
