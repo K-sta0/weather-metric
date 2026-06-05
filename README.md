@@ -1,6 +1,6 @@
 # Weather Metric Dashboard
 
-A responsive, interactive weather application built with React and TypeScript. This project focuses on delivering real-time weather data through a clean, minimalist UI, demonstrating modern frontend practices, state management, and third-party API integration.
+A responsive, interactive weather application built with React and TypeScript. This project focuses on delivering real-time weather data through a clean, minimalist UI, showcasing practical solutions to common frontend challenges, state management, and third-party API integration.
 
 ## Overview
 
@@ -22,6 +22,7 @@ While functioning as a comprehensive weather dashboard with real-time metrics, a
 
 **Data Visualization & Mapping**
 * Mapping: Leaflet.js with React-Leaflet wrapper
+* Weather Radar: RainViewer API (for real-time precipitation overlays)
 * Charts: Recharts (for rendering responsive forecast graphs)
 
 **Network & Data Fetching**
@@ -46,6 +47,7 @@ While functioning as a comprehensive weather dashboard with real-time metrics, a
 
 ### 4. Interactive UI & Mapping
 * **Map Integration:** The `WeatherMap.tsx` component leverages Leaflet to visually locate the searched city, allowing users to explore the surrounding area interactively.
+* **Real-time Radar Overlays:** Integrated the **RainViewer API** to provide high-frequency, low-latency precipitation radar data. This solves the data-refresh latency issues common with standard weather provider layers and ensures users see the most accurate precipitation status currently available.
 * **Clean & Minimalist Design System:** Implemented a modern, card-based UI with clear visual hierarchy. The `WeatherBackground.tsx` component responds to current weather conditions (e.g., rain, clouds, clear sky), adjusting the application's global theme while maintaining WCAG contrast standards.
 
 ## Project Architecture
