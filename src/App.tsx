@@ -11,6 +11,7 @@ import WeatherChart, { type MetricType } from "./components/WeatherChart";
 import DaySummary from "./components/DaySummary";
 import { AnimatePresence, motion } from "framer-motion";
 import WeatherMap from "./components/WeatherMap";
+import AirQuality from "./components/AirQuality";
 
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,6 +45,7 @@ function App() {
     forecast,
     clearWeather,
     rawForecast,
+    aqiData,
   } = useWeather();
 
   useEffect(() => {
@@ -158,10 +160,8 @@ function App() {
           setSuggestions={setSuggestions}
         />
 
-        {/* Show Skeleton */}
         {isLoading && <WeatherSkeleton />}
 
-        {/* Show Error Message */}
         {error && !isLoading && (
           <div className="alert alert-error max-w-md shadow-lg relative">
             <svg
@@ -198,12 +198,20 @@ function App() {
         )}
 
         {!isLoading && !error && weather && (
-          <WeatherCard
-            weather={weather}
-            onMetricClick={setActiveMetric}
-            activeMetric={activeMetric}
-            unit={unit}
-          />
+          <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 items-stretch">
+            <div className="w-full h-full flex flex-col">
+              <WeatherCard
+                weather={weather}
+                onMetricClick={setActiveMetric}
+                activeMetric={activeMetric}
+                unit={unit}
+              />
+            </div>
+
+            <div className="w-full h-full flex flex-col">
+              {aqiData && <AirQuality data={aqiData} />}
+            </div>
+          </div>
         )}
 
         <AnimatePresence>
@@ -213,7 +221,7 @@ function App() {
               animate={{ opacity: 1, height: "auto", marginTop: 8 }}
               exit={{ opacity: 0, height: 0, marginTop: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="w-full max-w-md overflow-hidden"
+              className="w-full max-w-4xl overflow-hidden"
             >
               <WeatherChart data={rawForecast} metric={activeMetric} />
             </motion.div>
@@ -238,7 +246,6 @@ function App() {
           />
         )}
 
-        {/* Detailed summary component */}
         <DaySummary date={selectedDate} rawForecast={rawForecast} unit={unit} />
       </main>
     </div>

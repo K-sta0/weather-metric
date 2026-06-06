@@ -67,3 +67,13 @@ export interface DailyForecast {
   temp_max: number;
   icon: string;
 }
+
+export interface AQIData {
+  aqi: number;
+  components: {
+    pm2_5: number;
+    pm10: number;
+    o3: number;
+    no2: number;
+  };
+}

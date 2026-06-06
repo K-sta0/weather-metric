@@ -5,6 +5,7 @@ import {
   type GeoapifyData,
   type ForecastItem,
   type DailyForecast,
+  type AQIData,
 } from "../types";
 
 export function useWeather() {
@@ -14,6 +15,7 @@ export function useWeather() {
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
   const [forecast, setForecast] = useState<DailyForecast[] | null>(null);
   const [rawForecast, setRawForecast] = useState<ForecastItem[] | null>(null);
+  const [aqiData, setAqiData] = useState<AQIData | null>(null); // НОВЫЙ СТЕЙТ
 
   const processForecastData = (list: ForecastItem[]): DailyForecast[] => {
     const dailyData: Record<string, DailyForecast> = {};
@@ -66,6 +68,19 @@ export function useWeather() {
       const weatherData = await weatherRes.json();
       const forecastRawData = await forecastRes.json();
 
+      const lat = weatherData.coord.lat;
+      const lon = weatherData.coord.lon;
+      const aqiRes = await fetch(
+        `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`,
+      );
+      if (aqiRes.ok) {
+        const aqiRaw = await aqiRes.json();
+        setAqiData({
+          aqi: aqiRaw.list[0].main.aqi,
+          components: aqiRaw.list[0].components,
+        });
+      }
+
       localStorage.setItem("lastCity", city);
       localStorage.removeItem("lastCustomName");
 
@@ -79,6 +94,7 @@ export function useWeather() {
       );
       setWeather(null);
       setForecast(null);
+      setAqiData(null);
     } finally {
       setIsLoading(false);
     }
@@ -92,11 +108,13 @@ export function useWeather() {
       const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
       const WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
       const FORECAST_URL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+      const AQI_URL = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
 
       try {
-        const [weatherRes, forecastRes] = await Promise.all([
+        const [weatherRes, forecastRes, aqiRes] = await Promise.all([
           fetch(WEATHER_URL),
           fetch(FORECAST_URL),
+          fetch(AQI_URL),
         ]);
 
         if (!weatherRes.ok || !forecastRes.ok) {
@@ -105,6 +123,14 @@ export function useWeather() {
 
         const weatherData = await weatherRes.json();
         const forecastRawData = await forecastRes.json();
+
+        if (aqiRes.ok) {
+          const aqiRaw = await aqiRes.json();
+          setAqiData({
+            aqi: aqiRaw.list[0].main.aqi,
+            components: aqiRaw.list[0].components,
+          });
+        }
 
         if (customName) {
           weatherData.name = customName;
@@ -126,6 +152,7 @@ export function useWeather() {
         );
         setWeather(null);
         setForecast(null);
+        setAqiData(null);
       } finally {
         setIsLoading(false);
       }
@@ -181,6 +208,7 @@ export function useWeather() {
     setWeather(null);
     setForecast(null);
     setRawForecast(null);
+    setAqiData(null);
     setError(null);
     setSuggestions([]);
 
@@ -216,6 +244,7 @@ export function useWeather() {
     fetchCitySuggestions,
     forecast,
     rawForecast,
+    aqiData,
     clearWeather,
   };
 }

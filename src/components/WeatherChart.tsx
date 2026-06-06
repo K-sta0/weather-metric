@@ -112,7 +112,7 @@ const WeatherChart = memo(({ data, metric }: WeatherChartProps) => {
   const config = metricConfig[metric];
 
   return (
-    <div className="card w-full max-w-md bg-base-100 shadow-xl backdrop-blur-md bg-opacity-90 mt-2 border border-white/20">
+    <div className="card w-full bg-base-100 shadow-xl backdrop-blur-md bg-opacity-90 mt-2 border border-white/20">
       <div className="card-body p-4 sm:p-6">
         <h3 className="font-bold text-lg mb-4 text-base-content capitalize">
           24h {config.label} Forecast
