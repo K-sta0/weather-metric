@@ -15,7 +15,7 @@ export function useWeather() {
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
   const [forecast, setForecast] = useState<DailyForecast[] | null>(null);
   const [rawForecast, setRawForecast] = useState<ForecastItem[] | null>(null);
-  const [aqiData, setAqiData] = useState<AQIData | null>(null); // НОВЫЙ СТЕЙТ
+  const [aqiData, setAqiData] = useState<AQIData | null>(null);
 
   const processForecastData = (list: ForecastItem[]): DailyForecast[] => {
     const dailyData: Record<string, DailyForecast> = {};
@@ -52,6 +52,7 @@ export function useWeather() {
     setIsLoading(true);
 
     const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+    const WAQI_KEY = import.meta.env.VITE_WAQI_API_KEY;
     const WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
     const FORECAST_URL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`;
 
@@ -71,14 +72,23 @@ export function useWeather() {
       const lat = weatherData.coord.lat;
       const lon = weatherData.coord.lon;
       const aqiRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`,
+        `https://api.waqi.info/feed/geo:${lat};${lon}/?token=${WAQI_KEY}`,
       );
       if (aqiRes.ok) {
         const aqiRaw = await aqiRes.json();
-        setAqiData({
-          aqi: aqiRaw.list[0].main.aqi,
-          components: aqiRaw.list[0].components,
-        });
+        if (aqiRaw.status === "ok") {
+          setAqiData({
+            aqi: aqiRaw.data.aqi,
+            components: {
+              pm2_5: aqiRaw.data.iaqi?.pm25?.v || 0,
+              pm10: aqiRaw.data.iaqi?.pm10?.v || 0,
+              o3: aqiRaw.data.iaqi?.o3?.v || 0,
+              no2: aqiRaw.data.iaqi?.no2?.v || 0,
+            },
+          });
+        } else {
+          setAqiData(null);
+        }
       }
 
       localStorage.setItem("lastCity", city);
@@ -106,9 +116,10 @@ export function useWeather() {
       setIsLoading(true);
 
       const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+      const WAQI_KEY = import.meta.env.VITE_WAQI_API_KEY;
       const WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
       const FORECAST_URL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
-      const AQI_URL = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
+      const AQI_URL = `https://api.waqi.info/feed/geo:${lat};${lon}/?token=${WAQI_KEY}`;
 
       try {
         const [weatherRes, forecastRes, aqiRes] = await Promise.all([
@@ -126,10 +137,17 @@ export function useWeather() {
 
         if (aqiRes.ok) {
           const aqiRaw = await aqiRes.json();
-          setAqiData({
-            aqi: aqiRaw.list[0].main.aqi,
-            components: aqiRaw.list[0].components,
-          });
+          if (aqiRaw.status === "ok") {
+            setAqiData({
+              aqi: aqiRaw.data.aqi,
+              components: {
+                pm2_5: aqiRaw.data.iaqi?.pm25?.v || 0,
+                pm10: aqiRaw.data.iaqi?.pm10?.v || 0,
+                o3: aqiRaw.data.iaqi?.o3?.v || 0,
+                no2: aqiRaw.data.iaqi?.no2?.v || 0,
+              },
+            });
+          }
         }
 
         if (customName) {
@@ -229,7 +247,7 @@ export function useWeather() {
         parseFloat(savedLat),
         parseFloat(savedLon),
         savedCustomName || undefined,
-      );
+      ).catch((err) => console.error("Failed to hydrate weather data:", err));
     }
   }, [fetchWeatherByGeolocation]);
 
