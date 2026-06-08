@@ -6,48 +6,53 @@ A responsive, interactive weather application built with React and TypeScript. T
 
 Developed as a technical portfolio piece, this application is designed to demonstrate practical skills in frontend architecture, state management, and external API integration.
 
-While functioning as a comprehensive weather dashboard with real-time metrics, a 5-day forecast, and an interactive map, its primary goal is to showcase clean and scalable client-side rendering (CSR) practices.
+While functioning as a comprehensive weather dashboard with real-time metrics, air quality data, a 5-day forecast, and an interactive map, its primary goal is to showcase clean and scalable client-side rendering (CSR) practices.
 
 ## Technical Stack
 
 **Core Architecture**
-* UI Library: React 19
-* Language: TypeScript (Strict Mode enabled)
-* Build Tool: Vite (for optimized Hot Module Replacement and fast production builds)
+* **UI Library:** React 19
+* **Language:** TypeScript (Strict Mode)
+* **Build Tool:** Vite (optimized Hot Module Replacement and fast production builds)
 
 **UI & Styling**
-* CSS Framework: Tailwind CSS
-* Component Library: DaisyUI
-* Animations: Framer Motion (for smooth layout transitions and component mounting)
+* **CSS Framework:** Tailwind CSS
+* **Component Library:** DaisyUI
+* **Animations:** Framer Motion (complex physics and smooth transitions) & Native CSS Keyframes (high-performance particle systems like rain/snow)
 
 **Data Visualization & Mapping**
-* Mapping: Leaflet.js with React-Leaflet wrapper
-* Weather Radar: RainViewer API (for real-time precipitation overlays)
-* Charts: Recharts (for rendering responsive forecast graphs)
+* **Mapping:** Leaflet.js with React-Leaflet wrapper
+* **Weather Radar:** RainViewer API (real-time precipitation overlays)
+* **Air Quality Data:** WAQI (World Air Quality Index) API (high-accuracy ground-sensor data)
+* **Charts:** Recharts (responsive forecast data visualization)
 
 **Network & Data Fetching**
-* Data Fetching: Native Fetch API with asynchronous state handling
-* Weather Provider: OpenWeatherMap API
-* Geolocation Provider: Geoapify API (for coordinate-based city lookups)
+* **Data Fetching:** Native Fetch API with asynchronous state handling
+* **Weather Provider:** OpenWeatherMap API
+* **Geolocation Provider:** Geoapify API (coordinate-based city lookups)
 
-## Engineering Features & System Design
+## Engineering Features
 
-### 1. Advanced State Management
-* **Debounced Input Processing:** Search queries are routed through a custom `useDebounce` hook. This ensures the external APIs are only called after the user finishes typing, effectively preventing rate-limiting, minimizing API credit consumption, and reducing redundant network traffic.
+### 1. State Management
+* **Debounced Input Processing:** Search queries are routed through a custom `useDebounce` hook. This prevents redundant API calls during user input, optimizing API credit consumption and reducing network overhead.
 * **Custom Hook Architecture:** The application heavily relies on the Component-State-Effect lifecycle. All API interactions, loading states, and error handling are encapsulated within a dedicated `useWeather` hook. This keeps UI components clean and easy to maintain.
+* **Persistence:** Leveraged `localStorage` for UI preference synchronization (e.g., map layer settings), ensuring state consistency across sessions.
 * **Strict Payload Typing:** The JSON payloads from OpenWeatherMap and Geoapify are fully typed using TypeScript interfaces (`src/types.ts`). This guarantees runtime safety, prevents undefined reference errors, and improves developer experience (DX).
 
 ### 2. Performance & UX Optimization
-* **Cumulative Layout Shift (CLS) Mitigation:** Implemented custom Skeleton loader components (`WeatherSkeleton.tsx`) that mirror the exact dimensions of the actual components. This ensures layout stability while asynchronous data is being fetched over the network.
+* **Hybrid Animation Strategy:** Optimized rendering by utilizing Framer Motion for UI-heavy transitions and native CSS keyframes for particle generation. This ensures a stable frame rate without overloading the React render cycle.
+* **Layout Stability:** Implemented `WeatherSkeleton` components that reflect the dimensions of loaded content to mitigate Cumulative Layout Shift (CLS) during asynchronous data fetching.
 * **Rendering Optimization:** Strategically managing component state to ensure that heavy UI elements (like Recharts and Leaflet maps) do not re-render unnecessarily when unrelated state (like the Celsius/Fahrenheit toggle) changes.
+* **Defensive Programming:** Integrated robust error fallbacks for API inconsistencies. Missing sensor data or API failures are handled gracefully at the UI level to prevent application crashes.
 
-### 3. Dynamic Data Computations
-* **Timezone Calculation:** The application calculates the exact local time of the searched city globally in a 24-hour format. It achieves this by taking the user's local system time, converting it to UTC, and applying the specific timezone offset provided by the API payload dynamically.
-* **Client-Side Unit Conversion:** Users can seamlessly switch between metric and imperial unit systems. The conversion logic (Celsius to Fahrenheit) is handled purely on the client side, updating the UI and Recharts data points instantly without triggering additional API calls.
+### 3. Data & Computations
+* **Timezone Logic:** Local time is computed by converting system time to UTC and applying the API-provided offset dynamically.
+* **Client-Side Unit Conversions:** Unit switching (Celsius/Fahrenheit) is performed on the client side, ensuring instant UI responsiveness without additional network requests.
 
 ### 4. Interactive UI & Mapping
 * **Map Integration:** The `WeatherMap.tsx` component leverages Leaflet to visually locate the searched city, allowing users to explore the surrounding area interactively.
-* **Real-time Radar Overlays:** Integrated the **RainViewer API** to provide high-frequency, low-latency precipitation radar data. This solves the data-refresh latency issues common with standard weather provider layers and ensures users see the most accurate precipitation status currently available.
+* **Layer Control:** Leveraged Leaflet’s `LayersControl` for modular toggling of street maps, radar overlays, and air quality heatmaps.
+* **Adaptive Geo-Resolution:** Implemented intelligent fallback logic. In locations lacking registered city names (e.g., open ocean or remote territories), the UI dynamically resolves to precise latitude/longitude coordinates to maintain data transparency.
 * **Clean & Minimalist Design System:** Implemented a modern, card-based UI with clear visual hierarchy. The `WeatherBackground.tsx` component responds to current weather conditions (e.g., rain, clouds, clear sky), adjusting the application's global theme while maintaining WCAG contrast standards.
 
 ## Project Architecture
@@ -58,13 +63,14 @@ The repository is organized following feature-based separation of concerns:
 src/
 ├── assets/                     # Static media and SVG icons
 ├── components/                 # Reusable UI blocks
+│   ├── AirQuality.tsx          # Real-time AQI metrics and custom tooltips
 │   ├── DaySummary.tsx          # Daily forecast breakdown
 │   ├── ForecastGrid.tsx        # 5-day predictive data rendering
 │   ├── SearchForm.tsx          # User input and city suggestions
 │   ├── WeatherBackground.tsx   # Dynamic condition-based background
 │   ├── WeatherCard.tsx         # Primary metric display & time computation
 │   ├── WeatherChart.tsx        # Recharts data visualization
-│   ├── WeatherMap.tsx          # Leaflet map container
+│   ├── WeatherMap.tsx          # Leaflet map container with layer controls
 │   └── WeatherSkeleton.tsx     # Loading state placeholders
 ├── hooks/                      # Encapsulated business logic
 │   ├── useDebounce.ts          # API request optimization
@@ -74,10 +80,9 @@ src/
 ├── main.tsx                    # React DOM entry point
 └── types.ts                    # TypeScript interfaces and data types
 ```
-
 ## Local Development Setup
 
-To run this project locally, you will need Node.js (v20+) and active API keys for both OpenWeatherMap and Geoapify.
+To run this project locally, you will need Node.js (v20+) and active API keys for OpenWeatherMap, Geoapify, and WAQI.
 
 1. Clone the repository:
 ```bash
@@ -94,6 +99,7 @@ npm install
 ```env
 VITE_WEATHER_API_KEY=your_openweathermap_api_key_here
 VITE_GEOAPIFY_KEY=your_geoapify_api_key_here
+VITE_WAQI_API_KEY=your_waqi_api_key_here
 ```
 *(Note: Replace the placeholder values with your actual API keys. The `.env` file is included in `.gitignore` to prevent secret leakage).*
 

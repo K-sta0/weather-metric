@@ -3,7 +3,7 @@ import { type WeatherData } from "../types";
 import { type MetricType } from "./WeatherChart";
 
 const getFlagEmoji = (countryCode: string) => {
-  if (!countryCode) return "";
+  if (!countryCode || countryCode.length !== 2) return "";
   return countryCode
     .toUpperCase()
     .replace(/./g, (char) => String.fromCodePoint(char.charCodeAt(0) + 127397));
@@ -22,7 +22,15 @@ export default function WeatherCard({
   activeMetric,
   unit,
 }: WeatherCardProps) {
-  const { name, sys, main, weather: weatherInfo, wind, timezone } = weather;
+  const {
+    name,
+    sys,
+    main,
+    weather: weatherInfo,
+    wind,
+    timezone,
+    coord,
+  } = weather;
   const iconUrl = `https://openweathermap.org/img/wn/${weatherInfo[0].icon}@4x.png`;
 
   const [localTime, setLocalTime] = useState<string>("");
@@ -60,11 +68,24 @@ export default function WeatherCard({
       <div className="card-body items-center text-center p-6 sm:p-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center justify-center gap-2 flex-wrap">
           <span className="text-center">
-            {name}, {sys.country}
+            {name ? (
+              <>
+                {name}
+                {sys.country && `, ${sys.country}`}
+              </>
+            ) : (
+              <>
+                {coord
+                  ? `${coord.lat.toFixed(2)}°, ${coord.lon.toFixed(2)}°`
+                  : "Unknown Location"}
+              </>
+            )}
           </span>
-          <span className="text-3xl sm:text-4xl leading-none drop-shadow-sm">
-            {getFlagEmoji(sys.country)}
-          </span>
+          {sys.country && (
+            <span className="text-3xl sm:text-4xl leading-none drop-shadow-sm">
+              {getFlagEmoji(sys.country)}
+            </span>
+          )}
         </h2>
 
         {localTime && (

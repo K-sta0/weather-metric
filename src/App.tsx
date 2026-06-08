@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect, useCallback, type FormEvent } from "react";
 import SearchForm from "./components/SearchForm";
 import WeatherCard from "./components/WeatherCard";
 import { useWeather } from "./hooks/useWeather";
@@ -22,17 +22,6 @@ function App() {
   });
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  const handleSuggestionClick = (suggestion: CitySuggestion) => {
-    setSearchQuery("");
-    setSuggestions([]);
-    setSelectedDate(null);
-    fetchWeatherByGeolocation(suggestion.lat, suggestion.lon, suggestion.name);
-  };
-
-  useEffect(() => {
-    localStorage.setItem("weatherUnit", unit);
-  }, [unit]);
-
   const {
     weather,
     isLoading,
@@ -47,6 +36,25 @@ function App() {
     rawForecast,
     aqiData,
   } = useWeather();
+
+  const handleMapClick = useCallback(
+    (lat: number, lon: number) => {
+      setSelectedDate(null);
+      fetchWeatherByGeolocation(lat, lon);
+    },
+    [fetchWeatherByGeolocation],
+  );
+
+  const handleSuggestionClick = (suggestion: CitySuggestion) => {
+    setSearchQuery("");
+    setSuggestions([]);
+    setSelectedDate(null);
+    fetchWeatherByGeolocation(suggestion.lat, suggestion.lon, suggestion.name);
+  };
+
+  useEffect(() => {
+    localStorage.setItem("weatherUnit", unit);
+  }, [unit]);
 
   useEffect(() => {
     if (debouncedSearchQuery) {
@@ -111,7 +119,6 @@ function App() {
     <div className="min-h-screen relative z-0 flex flex-col">
       <WeatherBackground weatherData={weather} />
 
-      {/* Navigation bar */}
       <div className="navbar bg-neutral text-neutral-content shadow-sm">
         <div className="flex-1">
           <a
@@ -181,7 +188,6 @@ function App() {
           </div>
         )}
 
-        {/* Empty state card */}
         {!isLoading && !error && !weather && (
           <div className="card w-full max-w-md bg-base-100 shadow-xl backdrop-blur-md bg-opacity-80 mt-4">
             <div className="card-body items-center text-center py-10">
@@ -233,6 +239,7 @@ function App() {
             lat={weather.coord.lat}
             lon={weather.coord.lon}
             city={weather.name}
+            onMapClick={handleMapClick}
           />
         )}
 
