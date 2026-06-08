@@ -107,7 +107,7 @@ const AirQuality = memo(({ data }: AirQualityProps) => {
     <div className="card w-full h-full bg-base-100 shadow-xl backdrop-blur-md bg-opacity-90 border border-white/10">
       <div className="card-body p-4 sm:p-6 flex flex-col justify-center">
         <h2 className="card-title text-lg sm:text-xl font-bold mb-3 text-base-content">
-          Air Quality (WAQI)
+          Air Quality
         </h2>
 
         <div

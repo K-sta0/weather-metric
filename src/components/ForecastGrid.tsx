@@ -28,10 +28,9 @@ const ForecastGrid = memo(
       <div className="card w-full max-w-4xl bg-base-100 shadow-xl backdrop-blur-md bg-opacity-90 mt-6 mb-10 overflow-hidden border border-white/20">
         <div className="card-body p-4 sm:p-6">
           <h2 className="card-title text-xl sm:text-2xl font-bold mb-4 sm:mb-6 justify-center sm:justify-start text-base-content">
-            5-Day Forecast
+            Upcoming Forecast
           </h2>
 
-          {/* Unified interactive container */}
           <div
             className="flex flex-row w-full bg-base-200/50 rounded-2xl border border-base-300/50 shadow-inner
                         overflow-x-auto overflow-y-hidden snap-x snap-mandatory"

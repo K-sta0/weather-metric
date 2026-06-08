@@ -1,4 +1,5 @@
 import { memo, useMemo } from "react";
+import { motion } from "framer-motion";
 import { type WeatherData } from "../types";
 
 interface WeatherBackgroundProps {
@@ -8,14 +9,48 @@ interface WeatherBackgroundProps {
 const isNightTime = (iconCode?: string) =>
   iconCode ? iconCode.endsWith("n") : false;
 
+const GRADIENTS: Record<string, string> = {
+  "night-clear": "from-[#0c0c20] to-[#1a1a40]",
+  "day-clear": "from-sky-400 to-amber-100",
+  "day-cloudy": "from-sky-300 to-slate-200",
+  "day-overcast": "from-slate-400 to-gray-500",
+  "night-overcast": "from-gray-800 to-gray-950",
+  "day-rain": "from-slate-400 to-slate-600",
+  "night-rain": "from-slate-800 to-[#1a1a40]",
+  "day-snow": "from-blue-100 to-slate-300",
+  "night-snow": "from-slate-800 to-slate-950",
+  fog: "from-gray-300 to-slate-400",
+};
+
+const getActiveTheme = (
+  main: string,
+  isNight: boolean,
+  isOvercast: boolean,
+): string | null => {
+  if (!main) return null;
+  if (main === "mist" || main === "fog") return "fog";
+  if (["rain", "drizzle", "thunderstorm"].includes(main))
+    return isNight ? "night-rain" : "day-rain";
+  if (main === "snow") return isNight ? "night-snow" : "day-snow";
+  if (isOvercast) return isNight ? "night-overcast" : "day-overcast";
+  if (main === "clouds") return isNight ? "night-clear" : "day-cloudy";
+  return isNight ? "night-clear" : "day-clear";
+};
+
 const WeatherBackground = memo(({ weatherData }: WeatherBackgroundProps) => {
   const isNight = isNightTime(weatherData?.weather[0].icon);
   const mainCondition = weatherData?.weather[0].main.toLowerCase() || "";
   const description = weatherData?.weather[0].description.toLowerCase() || "";
-
   const isOvercast = description.includes("overcast");
 
-  // Dynamic particle generation based on rain/snow intensity
+  const activeTheme = getActiveTheme(mainCondition, isNight, isOvercast);
+
+  const baseBg = !weatherData
+    ? "bg-slate-800"
+    : isNight
+      ? "bg-slate-900"
+      : "bg-slate-300";
+
   const rainDrops = useMemo(() => {
     const count = description.includes("heavy") ? 50 : 25;
     return Array.from({ length: count });
@@ -24,7 +59,6 @@ const WeatherBackground = memo(({ weatherData }: WeatherBackgroundProps) => {
   const snowParticles = useMemo(() => Array.from({ length: 20 }), []);
   const stars = useMemo(() => Array.from({ length: 50 }), []);
 
-  // Smart Cloud Generation based on description
   const clouds = useMemo(() => {
     let count = 5;
     if (description.includes("few")) count = 3;
@@ -33,67 +67,26 @@ const WeatherBackground = memo(({ weatherData }: WeatherBackgroundProps) => {
 
     return Array.from({ length: count }).map(() => ({
       size: Math.random() * 200 + 100,
-      top: `${Math.random() * 70}%`, // Position across the sky
-      speed: `${Math.random() * 40 + 30}s`,
-      delay: `-${Math.random() * 30}s`,
-      // Overcast clouds are more opaque to block the background
+      top: `${Math.random() * 70}%`,
+      speed: Math.random() * 40 + 30,
+      delay: -(Math.random() * 30),
       opacity: isNight ? (isOvercast ? 0.3 : 0.15) : isOvercast ? 0.9 : 0.6,
     }));
   }, [description, isNight, isOvercast]);
 
   return (
-    <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none transition-colors duration-1000 bg-slate-900">
-      {/* Night background */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br from-[#0c0c20] to-[#1a1a40] transition-opacity duration-1000 ${isNight && !isOvercast ? "opacity-100" : "opacity-0"}`}
-      />
+    <div
+      className={`fixed inset-0 z-[-1] overflow-hidden pointer-events-none transition-colors duration-1000 ${baseBg}`}
+    >
+      {Object.entries(GRADIENTS).map(([themeKey, gradientClasses]) => (
+        <div
+          key={themeKey}
+          className={`absolute inset-0 bg-gradient-to-br ${gradientClasses} transition-opacity duration-1000 ${
+            activeTheme === themeKey ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      ))}
 
-      {/* Clear day background */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br from-sky-400 to-amber-100 transition-opacity duration-1000 ${!isNight && mainCondition === "clear" ? "opacity-100" : "opacity-0"}`}
-      />
-
-      {/* Normal cloudy day background */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br from-sky-300 to-slate-200 transition-opacity duration-1000 ${!isNight && mainCondition === "clouds" && !isOvercast ? "opacity-100" : "opacity-0"}`}
-      />
-
-      {/* Overcast day background */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br from-slate-400 to-gray-500 transition-opacity duration-1000 ${!isNight && mainCondition === "clouds" && isOvercast ? "opacity-100" : "opacity-0"}`}
-      />
-
-      {/* Overcast night background */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950 transition-opacity duration-1000 ${isNight && mainCondition === "clouds" && isOvercast ? "opacity-100" : "opacity-0"}`}
-      />
-
-      {/* Day rain background */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br from-slate-400 to-slate-600 transition-opacity duration-1000 ${!isNight && (mainCondition === "rain" || mainCondition === "drizzle") ? "opacity-100" : "opacity-0"}`}
-      />
-
-      {/* Night rain background */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br from-slate-800 to-[#1a1a40] transition-opacity duration-1000 ${isNight && (mainCondition === "rain" || mainCondition === "drizzle") ? "opacity-100" : "opacity-0"}`}
-      />
-
-      {/* Day snow background */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br from-blue-100 to-slate-300 transition-opacity duration-1000 ${!isNight && mainCondition === "snow" ? "opacity-100" : "opacity-0"}`}
-      />
-
-      {/* Night snow background */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-950 transition-opacity duration-1000 ${isNight && mainCondition === "snow" ? "opacity-100" : "opacity-0"}`}
-      />
-
-      {/* Fog background */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br from-gray-300 to-slate-400 transition-opacity duration-1000 ${mainCondition === "mist" || mainCondition === "fog" ? "opacity-100" : "opacity-0"}`}
-      />
-
-      {/* Night: Static Stars (Hidden during rain, snow, mist, overcast) */}
       {isNight &&
         (mainCondition === "clear" ||
           (mainCondition === "clouds" && !isOvercast)) &&
@@ -111,7 +104,6 @@ const WeatherBackground = memo(({ weatherData }: WeatherBackgroundProps) => {
           />
         ))}
 
-      {/* Clear day: Heat Haze Sun */}
       {!isNight && mainCondition === "clear" && (
         <div
           className="absolute top-10 right-10 md:top-20 md:right-32 w-48 h-48 animate-pulse"
@@ -122,23 +114,26 @@ const WeatherBackground = memo(({ weatherData }: WeatherBackgroundProps) => {
         </div>
       )}
 
-      {/* Clouds: */}
       {mainCondition === "clouds" && (
         <div className="absolute inset-0 overflow-hidden">
           {clouds.map((c, i) => (
-            <div
+            <motion.div
               key={`cloud-group-${i}`}
-              className="cloud-particle absolute"
+              className="absolute"
               style={{
                 top: c.top,
-                animationDuration: c.speed,
-                animationDelay: c.delay,
                 opacity: c.opacity,
-                // Scale factor to take up massive space
-                transform: `scale(${c.size / 120})`,
+                scale: c.size / 120,
+              }}
+              initial={{ x: "-400px" }}
+              animate={{ x: "120vw" }}
+              transition={{
+                duration: c.speed,
+                repeat: Infinity,
+                ease: "linear",
+                delay: c.delay,
               }}
             >
-              {/* Dynamic Composite Cloud: Made of blurred overlapping shapes for a fluffy look */}
               <div className="relative w-64 h-32">
                 <div
                   className={`absolute left-10 top-4 w-40 h-24 rounded-full blur-2xl ${isNight ? "bg-gray-700" : "bg-white"}`}
@@ -153,15 +148,12 @@ const WeatherBackground = memo(({ weatherData }: WeatherBackgroundProps) => {
                   className={`absolute left-16 top-0 w-24 h-24 rounded-full blur-lg ${isNight ? "bg-slate-700" : "bg-white"}`}
                 />
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}
 
-      {/* Rain, frizzle, thunderstorm */}
-      {(mainCondition === "rain" ||
-        mainCondition === "drizzle" ||
-        mainCondition === "thunderstorm") && (
+      {["rain", "drizzle", "thunderstorm"].includes(mainCondition) && (
         <div>
           {rainDrops.map((_, i) => (
             <div
@@ -182,7 +174,6 @@ const WeatherBackground = memo(({ weatherData }: WeatherBackgroundProps) => {
         </div>
       )}
 
-      {/* Snow */}
       {mainCondition === "snow" && (
         <div>
           {snowParticles.map((_, i) => (

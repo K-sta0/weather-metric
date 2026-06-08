@@ -1,9 +1,6 @@
 @import "tailwindcss";
 @plugin "../node_modules/daisyui/index.js";
 
-/* --- Weather animations and effects --- */
-
-/* Global Rain Drop */
 .drop {
     position: absolute;
     top: -10vh;
@@ -17,17 +14,13 @@
     to { transform: translateY(115vh); }
 }
 
-/* Global Snowflake */
 .snowflake {
     position: absolute;
     top: -10vh;
     width: 8px;
     height: 8px;
-    /* Soft slightly translucent white */
     background: rgba(255, 255, 255, 0.85);
-    /* Irregular shape instead of perfect circle */
     border-radius: 40% 60% 60% 40%;
-    /* Soften the edges to look like fluffy snow */
     filter: blur(1.5px);
     animation: snow-fall linear infinite;
 }
@@ -37,31 +30,18 @@
         transform: translateY(0) translateX(0) rotate(0deg);
     }
     50% {
-
         transform: translateY(57.5vh) translateX(25px) rotate(180deg);
     }
     100% {
         transform: translateY(115vh) translateX(-25px) rotate(360deg);
     }
 }
-/* Clouds Movement */
-@keyframes floatClouds {
-    from { left: -150px; }
-    to { left: 100vw; }
-}
 
-.cloud-particle {
-    position: absolute;
-    animation: floatClouds linear infinite;
-}
-
-/* Sun Heat Haze */
 @keyframes heatHaze {
     0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
     50% { transform: scale(1.03) rotate(2deg); opacity: 0.9; }
 }
 
-/* Star Twinkling */
 @keyframes twinkle {
     0%, 100% { opacity: 0.2; transform: scale(0.8); }
     50% { opacity: 1; transform: scale(1); }
@@ -74,7 +54,6 @@
     animation: twinkle 3s ease-in-out infinite;
 }
 
-/* Lightning Flash */
 @keyframes lightningFlash {
     0%, 98%, 100% { opacity: 0; }
     99% { opacity: 0.8; }
