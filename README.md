@@ -18,7 +18,8 @@ While functioning as a comprehensive weather dashboard with real-time metrics, a
 **UI & Styling**
 * **CSS Framework:** Tailwind CSS
 * **Component Library:** DaisyUI
-* **Animations:** Framer Motion (complex physics and smooth transitions) & Native CSS Keyframes (high-performance particle systems like rain/snow)
+* **Animations:** Framer Motion (complex physics, interactive hover states, and smooth transitions) & Native CSS Keyframes (high-performance particle systems like rain/snow and sun shimmer)
+* **Dynamic Procedural Generation:** Custom React algorithms for generating randomized, non-repeating city skylines (`CitySkyline.tsx`) using strict Flexbox logic to prevent layout gaps.
 
 **Data Visualization & Mapping**
 * **Mapping:** Leaflet.js with React-Leaflet wrapper
@@ -53,7 +54,13 @@ While functioning as a comprehensive weather dashboard with real-time metrics, a
 * **Map Integration:** The `WeatherMap.tsx` component leverages Leaflet to visually locate the searched city, allowing users to explore the surrounding area interactively.
 * **Layer Control:** Leveraged Leaflet’s `LayersControl` for modular toggling of street maps, radar overlays, and air quality heatmaps.
 * **Adaptive Geo-Resolution:** Implemented intelligent fallback logic. In locations lacking registered city names (e.g., open ocean or remote territories), the UI dynamically resolves to precise latitude/longitude coordinates to maintain data transparency.
-* **Clean & Minimalist Design System:** Implemented a modern, card-based UI with clear visual hierarchy. The `WeatherBackground.tsx` component responds to current weather conditions (e.g., rain, clouds, clear sky), adjusting the application's global theme while maintaining WCAG contrast standards.
+
+### 5. Procedural UI & Theming
+* **Procedural City Skyline:** Built a custom React component (`CitySkyline.tsx`) that procedurally generates a two-tier architectural background. It dynamically calculates building widths, heights, and window grids based on screen size, utilizing advanced Flexbox techniques (`flex-nowrap`, `shrink-0`, randomized margins) to ensure a seamless, gap-free horizon on every render.
+* **Contextual Time-of-Day Theming:** The environment completely adapts not just to weather, but to the exact time of day.
+    * **Day Mode:** Features directional lighting, soft sun flares, atmospheric haze, and dynamic window reflections (shimmer effect).
+    * **Night Mode:** Transitions to deep neon gradients, pulsating city lights, and randomized window illumination.
+* **Unified Animation Physics:** Standardized interactive hover states across all components using Framer Motion's unified easing transitions, ensuring a cohesive and premium tactile feel.
 
 ## Project Architecture
 
@@ -64,14 +71,16 @@ src/
 ├── assets/                     # Static media and SVG icons
 ├── components/                 # Reusable UI blocks
 │   ├── AirQuality.tsx          # Real-time AQI metrics and custom tooltips
+│   ├── CitySkyline.tsx         # Procedural city generation and dynamic window lighting
 │   ├── DaySummary.tsx          # Daily forecast breakdown
 │   ├── ForecastGrid.tsx        # 5-day predictive data rendering
 │   ├── SearchForm.tsx          # User input and city suggestions
-│   ├── WeatherBackground.tsx   # Dynamic condition-based background
+│   ├── WeatherBackground.tsx   # Dynamic condition-based gradients and particle effects
 │   ├── WeatherCard.tsx         # Primary metric display & time computation
 │   ├── WeatherChart.tsx        # Recharts data visualization
 │   ├── WeatherMap.tsx          # Leaflet map container with layer controls
-│   └── WeatherSkeleton.tsx     # Loading state placeholders
+│   ├── WeatherSkeleton.tsx     # Loading state placeholders
+│   └── WelcomeScreen.tsx       # Initial landing state and quick-select cities
 ├── hooks/                      # Encapsulated business logic
 │   ├── useDebounce.ts          # API request optimization
 │   └── useWeather.ts           # Main API controller and state
