@@ -100,11 +100,11 @@ const WeatherBackground = memo(
           {!isDayByDefault && (
             <>
               <div
-                className="absolute w-160 h-160 rounded-full blur-[120px] animate-pulse bg-blue-500/20 top-[20%] left-[10%]"
+                className="absolute w-160 h-160 rounded-full blur-[120px] animate-pulse bg-blue-500/20 top-[20%] left-[10%] transform-gpu translate-z-0 will-change-transform"
                 style={{ animationDuration: "8s" }}
               />
               <div
-                className="absolute w-160 h-160 rounded-full blur-[120px] animate-pulse bg-purple-500/20 bottom-[20%] right-[10%]"
+                className="absolute w-160 h-160 rounded-full blur-[120px] animate-pulse bg-purple-500/20 bottom-[20%] right-[10%] transform-gpu translate-z-0 will-change-transform"
                 style={{ animationDuration: "12s", animationDelay: "2s" }}
               />
             </>
@@ -113,10 +113,10 @@ const WeatherBackground = memo(
           {isDayByDefault && (
             <>
               <div
-                className="absolute top-10 right-10 md:top-20 md:right-32 w-64 h-64 bg-yellow-300/80 rounded-full blur-[60px] animate-pulse z-0"
+                className="absolute top-10 right-10 md:top-20 md:right-32 w-64 h-64 bg-yellow-300/80 rounded-full blur-[60px] animate-pulse z-0 transform-gpu translate-z-0 will-change-transform"
                 style={{ animationDuration: "6s" }}
               />
-              <div className="absolute top-0 right-0 md:top-10 md:right-20 w-96 h-96 bg-amber-300/40 rounded-full blur-[100px] z-0" />
+              <div className="absolute top-0 right-0 md:top-10 md:right-20 w-96 h-96 bg-amber-300/40 rounded-full blur-[100px] z-0 transform-gpu translate-z-0 will-change-transform" />
               <div className="absolute inset-0 bg-gradient-to-tr from-amber-300/40 via-amber-200/10 to-transparent z-0" />
               <div className="absolute w-full h-[35vh] bottom-0 bg-gradient-to-t from-amber-200/40 to-transparent z-0" />
             </>
@@ -153,8 +153,8 @@ const WeatherBackground = memo(
               className="absolute top-10 right-10 md:top-20 md:right-32 w-48 h-48 animate-pulse"
               style={{ animationDuration: "4s" }}
             >
-              <div className="absolute inset-0 bg-yellow-100 rounded-full blur-[20px]" />
-              <div className="absolute -inset-10 bg-amber-300/60 rounded-full blur-[80px] opacity-70 animate-[heatHaze_4s_ease-in-out_infinite]" />
+              <div className="absolute inset-0 bg-yellow-100 rounded-full blur-[20px] transform-gpu translate-z-0 will-change-transform" />
+              <div className="absolute -inset-10 bg-amber-300/60 rounded-full blur-[80px] opacity-70 animate-[heatHaze_4s_ease-in-out_infinite] transform-gpu translate-z-0 will-change-transform" />
             </div>
             <div className="absolute inset-0 bg-gradient-to-tr from-amber-300/40 via-amber-200/10 to-transparent z-0 pointer-events-none" />
             <div className="absolute w-full h-[35vh] bottom-0 bg-gradient-to-t from-amber-100/40 to-transparent z-0 pointer-events-none" />
@@ -177,19 +177,18 @@ const WeatherBackground = memo(
                   delay: c.delay,
                 }}
               >
-                {" "}
                 <div className="relative w-64 h-32">
                   <div
-                    className={`absolute left-10 top-4 w-40 h-24 rounded-full blur-2xl ${isNight ? "bg-gray-700" : "bg-white"}`}
+                    className={`absolute left-10 top-4 w-40 h-24 rounded-full blur-2xl transform-gpu translate-z-0 will-change-transform ${isNight ? "bg-gray-700" : "bg-white"}`}
                   />
                   <div
-                    className={`absolute left-0 top-10 w-28 h-16 rounded-full blur-xl ${isNight ? "bg-gray-800" : "bg-gray-50"}`}
+                    className={`absolute left-0 top-10 w-28 h-16 rounded-full blur-xl transform-gpu translate-z-0 will-change-transform ${isNight ? "bg-gray-800" : "bg-gray-50"}`}
                   />
                   <div
-                    className={`absolute left-28 top-8 w-32 h-20 rounded-full blur-xl ${isNight ? "bg-gray-600" : "bg-gray-100"}`}
+                    className={`absolute left-28 top-8 w-32 h-20 rounded-full blur-xl transform-gpu translate-z-0 will-change-transform ${isNight ? "bg-gray-600" : "bg-gray-100"}`}
                   />
                   <div
-                    className={`absolute left-16 top-0 w-24 h-24 rounded-full blur-lg ${isNight ? "bg-slate-700" : "bg-white"}`}
+                    className={`absolute left-16 top-0 w-24 h-24 rounded-full blur-lg transform-gpu translate-z-0 will-change-transform ${isNight ? "bg-slate-700" : "bg-white"}`}
                   />
                 </div>
               </motion.div>
