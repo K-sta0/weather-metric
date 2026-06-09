@@ -33,7 +33,7 @@ const AQI_THRESHOLDS = [
   {
     max: 150,
     style: {
-      label: "Unhealthy for Sensitive",
+      label: "Unhealthy",
       color: "text-orange-500",
       bg: "bg-orange-500/10",
       border: "border-orange-500/20",
@@ -43,7 +43,7 @@ const AQI_THRESHOLDS = [
   {
     max: 200,
     style: {
-      label: "Unhealthy",
+      label: "Poor",
       color: "text-red-500",
       bg: "bg-red-500/10",
       border: "border-red-500/20",
@@ -114,14 +114,14 @@ const AirQuality = memo(({ data }: AirQualityProps) => {
           className={`p-4 sm:p-5 rounded-2xl flex flex-col h-full items-start justify-between gap-4 border ${info.bg} ${info.border}`}
         >
           <div className="flex-1 w-full">
-            <div className="flex items-end gap-2 mb-1">
+            <div className="flex items-center gap-3 mb-2">
               <span
-                className={`text-4xl sm:text-5xl font-black tracking-tighter leading-none ${info.color}`}
+                className={`text-4xl sm:text-5xl font-black tracking-tighter leading-none shrink-0 ${info.color}`}
               >
                 {data.aqi}
               </span>
               <span
-                className={`text-lg sm:text-xl font-bold uppercase tracking-wide ${info.color}`}
+                className={`text-base sm:text-lg font-bold uppercase tracking-wide leading-tight ${info.color}`}
               >
                 {info.label}
               </span>

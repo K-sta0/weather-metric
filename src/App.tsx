@@ -3,15 +3,33 @@ import SearchForm from "./components/SearchForm";
 import WeatherCard from "./components/WeatherCard";
 import { useWeather } from "./hooks/useWeather";
 import { useDebounce } from "./hooks/useDebounce";
-import { type CitySuggestion } from "./types.ts";
+import { type CitySuggestion } from "./types";
 import WeatherBackground from "./components/WeatherBackground";
 import WeatherSkeleton from "./components/WeatherSkeleton";
-import ForecastGrid from "./components/ForecastGrid.tsx";
+import ForecastGrid from "./components/ForecastGrid";
 import WeatherChart, { type MetricType } from "./components/WeatherChart";
 import DaySummary from "./components/DaySummary";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import WeatherMap from "./components/WeatherMap";
 import AirQuality from "./components/AirQuality";
+import WelcomeScreen from "./components/WelcomeScreen";
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { type: "spring", stiffness: 100, damping: 15 },
+  },
+};
 
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,6 +39,11 @@ function App() {
     return (localStorage.getItem("weatherUnit") as "C" | "F") || "C";
   });
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  const [isDayTimeByDefault] = useState(() => {
+    const currentHour = new Date().getHours();
+    return currentHour >= 6 && currentHour < 20;
+  });
 
   const {
     weather,
@@ -117,7 +140,10 @@ function App() {
 
   return (
     <div className="min-h-screen relative z-0 flex flex-col">
-      <WeatherBackground weatherData={weather} />
+      <WeatherBackground
+        weatherData={weather}
+        isDayByDefault={isDayTimeByDefault}
+      />
 
       <div className="navbar bg-neutral text-neutral-content shadow-sm">
         <div className="flex-1">
@@ -129,7 +155,6 @@ function App() {
           </a>
         </div>
 
-        {/* Temperature toggle switch */}
         <div className="flex-none bg-base-300/10 p-1 rounded-xl border border-white/10 flex items-center gap-1">
           <button
             onClick={() => setUnit("C")}
@@ -154,7 +179,6 @@ function App() {
         </div>
       </div>
 
-      {/* Main content container */}
       <main className="p-4 md:p-8 flex justify-center flex-col items-center gap-4">
         <SearchForm
           searchQuery={searchQuery}
@@ -189,71 +213,101 @@ function App() {
         )}
 
         {!isLoading && !error && !weather && (
-          <div className="card w-full max-w-md bg-base-100 shadow-xl backdrop-blur-md bg-opacity-80 mt-4">
-            <div className="card-body items-center text-center py-10">
-              <span className="text-6xl mb-4">🌍</span>
-              <h2 className="card-title text-2xl font-bold">
-                Welcome to Weathermetric
-              </h2>
-              <p className="text-gray-500 mt-2">
-                Enter a city name above or click the location pin 📍 to get the
-                current weather.
-              </p>
-            </div>
-          </div>
+          <WelcomeScreen onCitySelect={fetchWeather} />
         )}
 
         {!isLoading && !error && weather && (
-          <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 items-stretch">
-            <div className="w-full h-full flex flex-col">
-              <WeatherCard
-                weather={weather}
-                onMetricClick={setActiveMetric}
-                activeMetric={activeMetric}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            className="w-full flex flex-col items-center gap-4 mt-4"
+          >
+            <motion.div
+              variants={itemVariants}
+              className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch"
+            >
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="w-full h-full flex flex-col"
+              >
+                <WeatherCard
+                  weather={weather}
+                  onMetricClick={setActiveMetric}
+                  activeMetric={activeMetric}
+                  unit={unit}
+                />
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="w-full h-full flex flex-col"
+              >
+                {aqiData && <AirQuality data={aqiData} />}
+              </motion.div>
+            </motion.div>
+
+            <AnimatePresence>
+              {activeMetric && rawForecast && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  className="w-full max-w-4xl overflow-hidden"
+                >
+                  <WeatherChart data={rawForecast} metric={activeMetric} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <motion.div
+              variants={itemVariants}
+              whileHover={{ scale: 1.01 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="w-full max-w-4xl"
+            >
+              <WeatherMap
+                lat={weather.coord.lat}
+                lon={weather.coord.lon}
+                city={weather.name}
+                onMapClick={handleMapClick}
+              />
+            </motion.div>
+
+            {forecast && forecast.length > 0 && (
+              <motion.div
+                variants={itemVariants}
+                whileHover={{ scale: 1.01 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="w-full max-w-4xl"
+              >
+                <ForecastGrid
+                  data={forecast}
+                  isLoading={isLoading}
+                  unit={unit}
+                  selectedDate={selectedDate}
+                  onSelectDate={setSelectedDate}
+                />
+              </motion.div>
+            )}
+
+            <motion.div
+              variants={itemVariants}
+              whileHover={{ scale: 1.01 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="w-full max-w-4xl"
+            >
+              <DaySummary
+                date={selectedDate}
+                rawForecast={rawForecast}
                 unit={unit}
               />
-            </div>
-
-            <div className="w-full h-full flex flex-col">
-              {aqiData && <AirQuality data={aqiData} />}
-            </div>
-          </div>
-        )}
-
-        <AnimatePresence>
-          {!isLoading && !error && activeMetric && rawForecast && (
-            <motion.div
-              initial={{ opacity: 0, height: 0, marginTop: 0 }}
-              animate={{ opacity: 1, height: "auto", marginTop: 8 }}
-              exit={{ opacity: 0, height: 0, marginTop: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="w-full max-w-4xl overflow-hidden"
-            >
-              <WeatherChart data={rawForecast} metric={activeMetric} />
             </motion.div>
-          )}
-        </AnimatePresence>
-
-        {!isLoading && !error && weather && (
-          <WeatherMap
-            lat={weather.coord.lat}
-            lon={weather.coord.lon}
-            city={weather.name}
-            onMapClick={handleMapClick}
-          />
+          </motion.div>
         )}
-
-        {!isLoading && !error && forecast && forecast.length > 0 && (
-          <ForecastGrid
-            data={forecast}
-            isLoading={isLoading}
-            unit={unit}
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-          />
-        )}
-
-        <DaySummary date={selectedDate} rawForecast={rawForecast} unit={unit} />
       </main>
     </div>
   );
